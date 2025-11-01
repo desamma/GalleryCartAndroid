@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+
+    <!-- Background circle -->
+    <path
+        android:fillColor="@color/primary_light"
+        android:pathData="M100,100m-100,0a100,100 0,1 1,200 0a100,100 0,1 1,-200 0" />
+
+    <!-- User icon -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M100,60C88.95,60 80,68.95 80,80C80,91.05 88.95,100 100,100C111.05,100 120,91.05 120,80C120,68.95 111.05,60 100,60Z" />
+
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M100,110C73.49,110 52,131.49 52,158C52,162.42 55.58,166 60,166H140C144.42,166 148,162.42 148,158C148,131.49 126.51,110 100,110Z" />
+</vector>

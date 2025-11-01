@@ -76,6 +76,20 @@ public class UserRepository {
     }
 
     /**
+     * Get user by username
+     */
+    public User getUserByUsername(String username) {
+        return userDao.getUserByUsername(username);
+    }
+
+    /**
+     * Get user by email
+     */
+    public User getUserByEmail(String email) {
+        return userDao.getUserByEmail(email);
+    }
+
+    /**
      * Update user profile
      */
     public void updateUser(User user) {
