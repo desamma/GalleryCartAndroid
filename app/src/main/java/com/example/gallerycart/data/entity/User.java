@@ -16,7 +16,7 @@ public class User {
     private String username;
     private String email;
     private String role; // customer, artist, admin
-    private String password; // bcrypt hashed (chắc vậy)
+    private String password; // bcrypt hashed
     private Date userDob;
     private String phoneNumber;
     private String userAvatar;
@@ -27,7 +27,7 @@ public class User {
     private List<String> skills;
     private List<String> software;
     private String contactInfo;
-    private int commissionStatus; // 0/1/2 aka CLOSE/OPEN/FULL (todo: discuss this)
+    private int commissionStatus; // 0/1/2 aka CLOSE/OPEN/FULL
 
     public User() {
         this.createdDate = new Date();
