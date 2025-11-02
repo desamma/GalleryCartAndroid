@@ -108,4 +108,11 @@ public class UserRepository {
             }
         });
     }
+
+    /**
+     * Update email confirmation status
+     */
+    public void setEmailConfirmed(int userId, boolean confirmed) {
+        executorService.execute(() -> userDao.updateEmailConfirmation(userId, confirmed));
+    }
 }

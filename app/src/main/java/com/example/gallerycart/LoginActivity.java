@@ -8,6 +8,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
+
+import com.example.gallerycart.service.EmailService;
+import com.example.gallerycart.util.SessionManager;
 import com.example.gallerycart.viewmodel.AuthViewModel;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -21,11 +24,20 @@ public class LoginActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private TextView tvRegisterLink;
     private AuthViewModel authViewModel;
+    private SessionManager sessionManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        sessionManager = new SessionManager(this);
+
+        // Check if already logged in
+        if (sessionManager.isLoggedIn()) {
+            navigateToMain();
+            return;
+        }
 
         initViews();
         setupViewModel();
@@ -49,14 +61,41 @@ public class LoginActivity extends AppCompatActivity {
             hideLoading();
 
             if (result.success) {
+                // Save session
+                if (result.user != null) {
+                    sessionManager.createLoginSession(result.user.getId(), result.user.getUsername());
+                }
                 Toast.makeText(this, result.message, Toast.LENGTH_SHORT).show();
-                // Navigate to main activity
-                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent);
-                finish();
+                navigateToMain();
             } else {
-                Toast.makeText(this, result.message, Toast.LENGTH_LONG).show();
+                // Check if email not confirmed
+                if ("EMAIL_NOT_CONFIRMED".equals(result.message)) {
+                    // Navigate to email verification screen
+                    if (result.user != null) {
+                        String token = com.example.gallerycart.service.EmailService
+                                .generateVerificationToken(result.user.getId());
+
+                        // Resend verification email (REMOVED context parameter)
+                        EmailService.sendVerificationEmail(
+                                result.user.getEmail(),
+                                result.user.getUsername(),
+                                token
+                        );
+
+                        Intent intent = new Intent(LoginActivity.this, EmailVerificationActivity.class);
+                        intent.putExtra("email", result.user.getEmail());
+                        intent.putExtra("userId", result.user.getId());
+                        intent.putExtra("username", result.user.getUsername());
+                        intent.putExtra("token", token);
+                        startActivity(intent);
+
+                        Toast.makeText(this,
+                                "Please verify your email before proceeding",
+                                Toast.LENGTH_LONG).show();
+                    }
+                } else {
+                    Toast.makeText(this, result.message, Toast.LENGTH_LONG).show();
+                }
             }
         });
     }
@@ -78,6 +117,7 @@ public class LoginActivity extends AppCompatActivity {
         String emailOrUsername = etEmailUsername.getText().toString().trim();
         String password = etPassword.getText().toString();
 
+        // Basic validation
         if (emailOrUsername.isEmpty()) {
             tilEmailUsername.setError("Email or username is required");
             etEmailUsername.requestFocus();
@@ -92,6 +132,13 @@ public class LoginActivity extends AppCompatActivity {
 
         showLoading();
         authViewModel.login(emailOrUsername, password);
+    }
+
+    private void navigateToMain() {
+        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
     }
 
     private void showLoading() {

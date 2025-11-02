@@ -32,4 +32,10 @@ public interface UserDao {
 
     @Query("DELETE FROM user WHERE id = :userId")
     void deleteUser(int userId);
+
+    @Query("UPDATE user SET isEmailConfirmed = :confirmed WHERE id = :userId")
+    void updateEmailConfirmation(int userId, boolean confirmed);
+
+    @Query("UPDATE user SET isEmailConfirmed = :confirmed WHERE email = :email")
+    void updateEmailConfirmationByEmail(String email, boolean confirmed);
 }
