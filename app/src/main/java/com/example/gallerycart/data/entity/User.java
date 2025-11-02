@@ -28,6 +28,7 @@ public class User {
     private List<String> software;
     private String contactInfo;
     private int commissionStatus; // 0/1/2 aka CLOSE/OPEN/FULL
+    private boolean isEmailConfirmed;
 
     public User() {
         this.createdDate = new Date();
@@ -87,4 +88,7 @@ public class User {
     public void setCommissionStatus(int commissionStatus) {
         this.commissionStatus = commissionStatus;
     }
+
+    public boolean isEmailConfirmed() { return isEmailConfirmed; }
+    public void setEmailConfirmed(boolean emailConfirmed) { isEmailConfirmed = emailConfirmed; }
 }

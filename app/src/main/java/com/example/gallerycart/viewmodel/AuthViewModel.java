@@ -7,6 +7,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import com.example.gallerycart.data.entity.User;
 import com.example.gallerycart.repository.UserRepository;
+import com.example.gallerycart.service.EmailService;
 import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -17,6 +18,7 @@ public class AuthViewModel extends AndroidViewModel {
     private final ExecutorService executorService;
     private final MutableLiveData<AuthResult> authResult = new MutableLiveData<>();
     private final MutableLiveData<User> currentUser = new MutableLiveData<>();
+    private final MutableLiveData<String> verificationToken = new MutableLiveData<>();
 
     public AuthViewModel(@NonNull Application application) {
         super(application);
@@ -32,6 +34,10 @@ public class AuthViewModel extends AndroidViewModel {
         return currentUser;
     }
 
+    public LiveData<String> getVerificationToken() {
+        return verificationToken;
+    }
+
     /**
      * Login with email or username
      */
@@ -39,11 +45,11 @@ public class AuthViewModel extends AndroidViewModel {
         executorService.execute(() -> {
             try {
                 if (emailOrUsername == null || emailOrUsername.trim().isEmpty()) {
-                    authResult.postValue(new AuthResult(false, "Email/Username is required"));
+                    authResult.postValue(new AuthResult(false, "Email/Username is required", null));
                     return;
                 }
                 if (password == null || password.isEmpty()) {
-                    authResult.postValue(new AuthResult(false, "Password is required"));
+                    authResult.postValue(new AuthResult(false, "Password is required", null));
                     return;
                 }
 
@@ -60,20 +66,27 @@ public class AuthViewModel extends AndroidViewModel {
 
                 if (user != null) {
                     if (user.isBanned()) {
-                        authResult.postValue(new AuthResult(false, "Your account has been banned"));
+                        authResult.postValue(new AuthResult(false, "Your account has been banned", null));
+                    } else if (!user.isEmailConfirmed()) {
+                        // EMAIL NOT CONFIRMED
+                        currentUser.postValue(user);
+                        authResult.postValue(new AuthResult(false, "EMAIL_NOT_CONFIRMED", user));
                     } else {
                         currentUser.postValue(user);
-                        authResult.postValue(new AuthResult(true, "Login successful"));
+                        authResult.postValue(new AuthResult(true, "Login successful", user));
                     }
                 } else {
-                    authResult.postValue(new AuthResult(false, "Invalid credentials"));
+                    authResult.postValue(new AuthResult(false, "Invalid credentials", null));
                 }
             } catch (Exception e) {
-                authResult.postValue(new AuthResult(false, "Login failed: " + e.getMessage()));
+                authResult.postValue(new AuthResult(false, "Login failed: " + e.getMessage(), null));
             }
         });
     }
 
+    /**
+     * Register new user
+     */
     /**
      * Register new user
      */
@@ -83,25 +96,25 @@ public class AuthViewModel extends AndroidViewModel {
                 // Validation
                 String error = validateRegistration(data);
                 if (error != null) {
-                    authResult.postValue(new AuthResult(false, error));
+                    authResult.postValue(new AuthResult(false, error, null));
                     return;
                 }
 
                 // Check if username exists
                 User existingUser = userRepository.getUserByUsername(data.username);
                 if (existingUser != null) {
-                    authResult.postValue(new AuthResult(false, "Username already exists"));
+                    authResult.postValue(new AuthResult(false, "Username already exists", null));
                     return;
                 }
 
                 // Check if email exists
                 User existingEmail = userRepository.getUserByEmail(data.email);
                 if (existingEmail != null) {
-                    authResult.postValue(new AuthResult(false, "Email already exists"));
+                    authResult.postValue(new AuthResult(false, "Email already exists", null));
                     return;
                 }
 
-                // Create user
+                // Create user with isEmailConfirmed = false
                 long userId = userRepository.createUser(
                         data.username,
                         data.email,
@@ -113,6 +126,8 @@ public class AuthViewModel extends AndroidViewModel {
                 // Update additional fields
                 User user = userRepository.getUserById((int) userId);
                 user.setArtist(data.isArtist);
+                user.setUserAvatar("defaultavatar.png");
+                user.setEmailConfirmed(false);
 
                 if (data.isArtist) {
                     user.setProfessionSummary(data.professionSummary);
@@ -124,11 +139,22 @@ public class AuthViewModel extends AndroidViewModel {
 
                 userRepository.updateUser(user);
 
+                // Generate verification token
+                String token = EmailService.generateVerificationToken((int) userId);
+
+                // Send verification email via SMTP
+                EmailService.sendVerificationEmail(
+                        data.email,
+                        data.username,
+                        token
+                );
+
                 currentUser.postValue(user);
-                authResult.postValue(new AuthResult(true, "Registration successful"));
+                verificationToken.postValue(token);
+                authResult.postValue(new AuthResult(true, "REGISTRATION_SUCCESS", user));
 
             } catch (Exception e) {
-                authResult.postValue(new AuthResult(false, "Registration failed: " + e.getMessage()));
+                authResult.postValue(new AuthResult(false, "Registration failed: " + e.getMessage(), null));
             }
         });
     }
@@ -173,10 +199,12 @@ public class AuthViewModel extends AndroidViewModel {
     public static class AuthResult {
         public final boolean success;
         public final String message;
+        public final User user;
 
-        public AuthResult(boolean success, String message) {
+        public AuthResult(boolean success, String message, User user) {
             this.success = success;
             this.message = message;
+            this.user = user;
         }
     }
 

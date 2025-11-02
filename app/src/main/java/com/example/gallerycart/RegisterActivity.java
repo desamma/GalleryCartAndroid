@@ -18,9 +18,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -88,31 +86,42 @@ public class RegisterActivity extends AppCompatActivity {
         authViewModel.getAuthResult().observe(this, result -> {
             hideLoading();
 
-            if (result.success) {
-                Toast.makeText(this, result.message, Toast.LENGTH_SHORT).show();
-                // Navigate to main activity
-                Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent);
-                finish();
-            } else {
+            if (result.success && "REGISTRATION_SUCCESS".equals(result.message)) {
+                Toast.makeText(this, "Registration successful! Please verify your email.", Toast.LENGTH_LONG).show();
+
+                // Navigate to email verification screen
+                authViewModel.getVerificationToken().observe(this, token -> {
+                    if (token != null && result.user != null) {
+                        Intent intent = new Intent(RegisterActivity.this, EmailVerificationActivity.class);
+                        intent.putExtra("email", result.user.getEmail());
+                        intent.putExtra("userId", result.user.getId());
+                        intent.putExtra("username", result.user.getUsername());
+                        intent.putExtra("token", token);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(intent);
+                        finish();
+                    }
+                });
+            } else if (!result.success) {
                 Toast.makeText(this, result.message, Toast.LENGTH_LONG).show();
             }
         });
     }
 
     private void setupListeners() {
+        // Artist toggle
         switchIsArtist.setOnCheckedChangeListener((buttonView, isChecked) -> {
             layoutArtistFields.setVisibility(isChecked ? View.VISIBLE : View.GONE);
         });
 
+        // Date picker
         etDateOfBirth.setOnClickListener(v -> showDatePicker());
 
+        // Register button
         btnRegister.setOnClickListener(v -> performRegister());
 
-        tvLoginLink.setOnClickListener(v -> {
-            finish();
-        });
+        // Login link
+        tvLoginLink.setOnClickListener(v -> finish());
     }
 
     private void showDatePicker() {
@@ -127,8 +136,9 @@ public class RegisterActivity extends AppCompatActivity {
                 selectedDate.get(Calendar.DAY_OF_MONTH)
         );
 
+        // Set max date to 18 years ago
         Calendar maxDate = Calendar.getInstance();
-        maxDate.add(Calendar.YEAR, -0);
+        maxDate.add(Calendar.YEAR, -18);
         datePickerDialog.getDatePicker().setMaxDate(maxDate.getTimeInMillis());
 
         datePickerDialog.show();
@@ -138,6 +148,7 @@ public class RegisterActivity extends AppCompatActivity {
         // Clear all errors
         clearErrors();
 
+        // Get values
         String username = etUsername.getText().toString().trim();
         String email = etEmail.getText().toString().trim();
         String password = etPassword.getText().toString();
@@ -145,6 +156,7 @@ public class RegisterActivity extends AppCompatActivity {
         String dateOfBirth = etDateOfBirth.getText().toString();
         boolean isArtist = switchIsArtist.isChecked();
 
+        // Basic validation
         if (username.isEmpty()) {
             tilUsername.setError("Username is required");
             etUsername.requestFocus();
@@ -181,6 +193,7 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
+        // Prepare registration data
         AuthViewModel.RegisterData registerData = new AuthViewModel.RegisterData();
         registerData.username = username;
         registerData.email = email;

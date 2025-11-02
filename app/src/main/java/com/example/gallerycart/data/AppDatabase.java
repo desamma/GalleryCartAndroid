@@ -22,7 +22,7 @@ import com.example.gallerycart.data.entity.*;
         Cart.class,
         CartItem.class,
         MomoPayment.class
-}, version = 1, exportSchema = true)
+}, version = 2, exportSchema = true)
 @TypeConverters({Converters.class})
 public abstract class AppDatabase extends RoomDatabase {
 
@@ -140,8 +140,7 @@ public abstract class AppDatabase extends RoomDatabase {
     static final Migration MIGRATION_1_2 = new Migration(1, 2) {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
-            // Example: Add a new column to User table
-            // database.execSQL("ALTER TABLE user ADD COLUMN newColumn TEXT");
+            database.execSQL("ALTER TABLE user ADD COLUMN isEmailConfirmed INTEGER NOT NULL DEFAULT 0");
         }
     };
 }
