@@ -1,11 +1,13 @@
 package com.example.gallerycart.repository;
 
 import android.content.Context;
+import androidx.lifecycle.LiveData;
 import com.example.gallerycart.data.AppDatabase;
 import com.example.gallerycart.data.dao.UserDao;
 import com.example.gallerycart.data.entity.User;
 import com.example.gallerycart.util.PasswordUtils;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -18,6 +20,9 @@ public class UserRepository {
         AppDatabase database = AppDatabase.getInstance(context);
         userDao = database.userDao();
         executorService = Executors.newSingleThreadExecutor();
+    }
+    public LiveData<List<User>> getAllUsers() {
+        return userDao.getAllUsers();
     }
 
     /**
