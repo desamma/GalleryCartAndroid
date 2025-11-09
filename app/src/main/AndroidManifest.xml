@@ -56,6 +56,17 @@
         <activity
             android:name=".AllCommissionsActivity"
             android:exported="false" />
+        <activity
+            android:name=".AllPostsActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".PostDetailActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".PostEditActivity"
+            android:exported="false" />
 
     </application>
 

@@ -46,32 +46,24 @@ dependencies {
     implementation 'androidx.activity:activity:1.8.2'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 
-    // Room dependencies
     def room_version = "2.6.1"
     implementation "androidx.room:room-runtime:$room_version"
     annotationProcessor "androidx.room:room-compiler:$room_version"
     implementation "androidx.room:room-rxjava3:$room_version"
 
-    // Gson for type converters
     implementation 'com.google.code.gson:gson:2.10.1'
-
-    // BCrypt for password hashing
     implementation 'at.favre.lib:bcrypt:0.10.2'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 
-    // ViewModel
     implementation 'androidx.lifecycle:lifecycle-viewmodel:2.7.0'
     implementation 'androidx.lifecycle:lifecycle-livedata:2.7.0'
     implementation 'androidx.lifecycle:lifecycle-runtime:2.7.0'
     implementation 'androidx.activity:activity:1.8.2'
-
-    // Fragment
     implementation 'androidx.fragment:fragment:1.6.2'
 
-    // JavaMail API for sending emails
     implementation 'com.sun.mail:android-mail:1.6.7'
     implementation 'com.sun.mail:android-activation:1.6.7'
 

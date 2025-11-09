@@ -16,7 +16,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.gallerycart.adapter.PostAdapter;
 import com.example.gallerycart.data.entity.Post;
+import com.example.gallerycart.data.entity.User;
 import com.example.gallerycart.repository.PostRepository;
+import com.example.gallerycart.repository.UserRepository;
 import com.example.gallerycart.util.SessionManager;
 import com.google.android.material.button.MaterialButton;
 
@@ -26,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView tvUsername;
     private MaterialButton btnLogout;
+    private MaterialButton btnViewAllArt;
     private SessionManager sessionManager;
 
     private RecyclerView rvFeaturedPosts;
@@ -33,6 +36,8 @@ public class MainActivity extends AppCompatActivity {
     private PostAdapter featuredAdapter;
     private PostAdapter randomAdapter;
     private PostRepository postRepository;
+
+    private boolean isArtist = false; // để show/hide menu Create Post
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +49,6 @@ public class MainActivity extends AppCompatActivity {
 
         sessionManager = new SessionManager(this);
 
-        // Check if logged in
         if (!sessionManager.isLoggedIn()) {
             navigateToLogin();
             return;
@@ -55,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
         initViews();
         setupRecyclerViews();
         loadUserData();
+        loadUserRole();
         setupListeners();
         loadPostSections();
     }
@@ -67,19 +72,41 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem createPostItem = menu.findItem(R.id.action_create_post);
+        if (createPostItem != null) {
+            createPostItem.setVisible(isArtist);
+        }
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_all_artists) {
+        int id = item.getItemId();
+
+        if (id == R.id.action_home) {
+            // Ở MainActivity thì chỉ refresh, các Activity khác sau này có thể gọi về Home
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+            return true;
+        } else if (id == R.id.action_all_artists) {
             Intent intent = new Intent(this, AllArtistsActivity.class);
             startActivity(intent);
             return true;
+        } else if (id == R.id.action_create_post) {
+            Intent intent = new Intent(this, PostEditActivity.class);
+            startActivity(intent);
+            return true;
         }
-        // Sau này nếu thêm action_home / create_post thì handle ở đây
+
         return super.onOptionsItemSelected(item);
     }
 
     private void initViews() {
         tvUsername = findViewById(R.id.tvUsername);
         btnLogout = findViewById(R.id.btnLogout);
+        btnViewAllArt = findViewById(R.id.btnViewAllArt);
 
         rvFeaturedPosts = findViewById(R.id.rvFeaturedPosts);
         rvRandomPosts = findViewById(R.id.rvRandomPosts);
@@ -103,14 +130,35 @@ public class MainActivity extends AppCompatActivity {
         tvUsername.setText(username != null ? username : "User");
     }
 
+    private void loadUserRole() {
+        int userId = sessionManager.getUserId();
+        if (userId == -1) return;
+
+        new Thread(() -> {
+            UserRepository userRepository = new UserRepository(getApplicationContext());
+            User user = userRepository.getUserById(userId);
+            if (user != null) {
+                boolean artist = "artist".equalsIgnoreCase(user.getRole()) || user.isArtist();
+                runOnUiThread(() -> {
+                    isArtist = artist;
+                    invalidateOptionsMenu();
+                });
+            }
+        }).start();
+    }
+
     private void setupListeners() {
         btnLogout.setOnClickListener(v -> showLogoutDialog());
+
+        btnViewAllArt.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, AllPostsActivity.class);
+            startActivity(intent);
+        });
     }
 
     private void loadPostSections() {
-        // 5 bài nổi bật (like nhiều nhất)
+        // 5 bài nổi bật
         postRepository.getTopLikedPostsAsync(5, this::updateFeaturedPosts);
-
         // 5 bài ngẫu nhiên
         postRepository.getRandomPostsAsync(5, this::updateRandomPosts);
     }
@@ -124,9 +172,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onPostClicked(Post post) {
-        // Tạm thời chỉ show Toast.
-        // Sau này sẽ chuyển sang màn chi tiết Post / View all art.
-        Toast.makeText(this, "Post: " + post.getTitle(), Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(this, PostDetailActivity.class);
+        intent.putExtra(PostDetailActivity.EXTRA_POST_ID, post.getId());
+        startActivity(intent);
     }
 
     private void showLogoutDialog() {
