@@ -9,6 +9,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
+
+import com.example.gallerycart.data.entity.Commission;
+import com.example.gallerycart.viewmodel.CommissionViewModel;
 
 public class CommissionRequestActivity extends AppCompatActivity {
 
@@ -17,6 +21,7 @@ public class CommissionRequestActivity extends AppCompatActivity {
     private EditText etDescription, etPrice, etDeadline;
     private Button btnSendRequest;
     private String artistId;
+    private CommissionViewModel commissionViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,13 +41,42 @@ public class CommissionRequestActivity extends AppCompatActivity {
         String artistName = intent.getStringExtra("ARTIST_NAME");
         String artistDescription = intent.getStringExtra("ARTIST_DESCRIPTION");
 
-        tvArtistName.setText(artistName);
-        tvArtistDescription.setText(artistDescription);
-        // You can also load the artist's avatar here if you have the URL
+        // TODO: Get the client ID from shared preferences or intent
+        String clientId = "1";
+        commissionViewModel = new ViewModelProvider(this).get(CommissionViewModel.class);
+        commissionViewModel.init(clientId);
+
+        tvArtistName.setText(artistName != null ? artistName : "Artist Name Not Found");
+        tvArtistDescription.setText(artistDescription != null ? artistDescription : "No description available.");
 
         btnSendRequest.setOnClickListener(v -> {
-            // TODO: Implement commission request logic
+            String description = etDescription.getText().toString().trim();
+            String priceStr = etPrice.getText().toString().trim();
+            String deadline = etDeadline.getText().toString().trim();
+
+            if (description.isEmpty() || priceStr.isEmpty() || deadline.isEmpty()) {
+                Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            double price = Double.parseDouble(priceStr);
+
+            Commission commission = new Commission();
+            commission.setArtistId(artistId);
+            commission.setClientId(clientId); // Replace with actual client ID
+            commission.setDescription(description);
+            commission.setPrice(price);
+            commission.setDeadline(deadline);
+            commission.setStatus("Pending");
+            commission.setCreatedAt(System.currentTimeMillis());
+
+            commissionViewModel.insert(commission);
+
             Toast.makeText(this, "Commission request sent!", Toast.LENGTH_SHORT).show();
+
+            Intent allCommissionsIntent = new Intent(CommissionRequestActivity.this, AllCommissionsActivity.class);
+            startActivity(allCommissionsIntent);
+            finish();
         });
     }
 }
