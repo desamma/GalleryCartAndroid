@@ -134,16 +134,16 @@
                 android:textColor="@color/primary_color"
                 android:layout_marginBottom="8dp" />
 
+            <!-- RANDOM POSTS -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvFeaturedPosts"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:overScrollMode="never"
-                android:nestedScrollingEnabled="false"
                 android:layout_marginBottom="16dp"
+                android:nestedScrollingEnabled="false"
+                android:overScrollMode="never"
                 tools:listitem="@layout/home_post_item" />
 
-            <!-- RANDOM POSTS -->
             <TextView
                 android:id="@+id/tvRandomLabel"
                 android:layout_width="wrap_content"

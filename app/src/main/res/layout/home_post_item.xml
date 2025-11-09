@@ -14,16 +14,17 @@
         android:layout_height="wrap_content"
         android:padding="8dp">
 
+        <!-- ẢNH TRANH (thumbnail) -->
         <ImageView
             android:id="@+id/ivPostImage"
             android:layout_width="80dp"
             android:layout_height="80dp"
             android:scaleType="centerCrop"
-            android:src="@drawable/defaultavatar"
-            android:contentDescription="@string/app_name"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            android:src="@drawable/post_placeholder"
+        android:contentDescription="@string/app_name"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
         <TextView
             android:id="@+id/tvPostTitle"
@@ -73,18 +74,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:background="@drawable/defaultavatar"
-            android:paddingStart="6dp"
-            android:paddingEnd="6dp"
-            android:paddingTop="2dp"
-            android:paddingBottom="2dp"
-            android:text="Mature"
-            android:textColor="@android:color/white"
-            android:textSize="10sp"
-            android:visibility="gone"
-            app:layout_constraintTop_toBottomOf="@id/tvPostLikes"
-            app:layout_constraintStart_toEndOf="@id/ivPostImage"
-            tools:visibility="visible" />
+            android:background="@drawable/bg_mature_badge"
+        android:paddingStart="6dp"
+        android:paddingEnd="6dp"
+        android:paddingTop="2dp"
+        android:paddingBottom="2dp"
+        android:text="Mature"
+        android:textColor="@android:color/white"
+        android:textSize="10sp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/tvPostLikes"
+        app:layout_constraintStart_toEndOf="@id/ivPostImage"
+        tools:visibility="visible" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
