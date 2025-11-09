@@ -48,6 +48,7 @@ public class CommissionRequestActivity extends AppCompatActivity {
 
         tvArtistName.setText(artistName != null ? artistName : "Artist Name Not Found");
         tvArtistDescription.setText(artistDescription != null ? artistDescription : "No description available.");
+        // You can also load the artist's avatar here if you have the URL
 
         btnSendRequest.setOnClickListener(v -> {
             String description = etDescription.getText().toString().trim();
