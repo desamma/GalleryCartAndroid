@@ -1,5 +1,6 @@
 package com.example.gallerycart.data.dao;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
@@ -28,7 +29,10 @@ public interface UserDao {
     List<User> getUsersByRole(String role);
 
     @Query("SELECT * FROM user")
-    List<User> getAllUsers();
+    LiveData<List<User>> getAllUsers();
+
+    @Query("SELECT * FROM user WHERE isArtist = 1")
+    LiveData<List<User>> getAllArtists();
 
     @Query("DELETE FROM user WHERE id = :userId")
     void deleteUser(int userId);
@@ -38,4 +42,5 @@ public interface UserDao {
 
     @Query("UPDATE user SET isEmailConfirmed = :confirmed WHERE email = :email")
     void updateEmailConfirmationByEmail(String email, boolean confirmed);
+
 }
