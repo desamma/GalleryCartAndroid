@@ -1,9 +1,10 @@
-
+<?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#FFFFFF"
     tools:context=".AllArtistsActivity">
 
     <LinearLayout
@@ -11,13 +12,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:background="#FFFFFF"
+        android:padding="16dp"
+        android:elevation="4dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="All Artists"
-            android:textColor="@color/black"
+            android:textColor="#000000"
             android:textSize="24sp"
             android:textStyle="bold" />
 
@@ -26,6 +29,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
+            android:background="#F5F5F5"
             android:queryHint="Search artists..." />
 
         <Button
@@ -33,7 +37,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
-            android:text="Filter" />
+            android:layout_marginTop="8dp"
+            android:text="Filter"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#2196F3" />
 
     </LinearLayout>
 
@@ -42,6 +49,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/header"
-        android:padding="16dp" />
+        android:background="#F5F5F5"
+        android:padding="8dp"
+        android:clipToPadding="false" />
 
 </RelativeLayout>
