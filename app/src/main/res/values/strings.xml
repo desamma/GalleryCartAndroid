@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">GalleryCart</string>
     <string name="all_artists">All Artists</string>
+    <!-- ... các string khác ... -->
+    <string name="cloudinary_cloud_name">your_cloud_name</string>
+    <string name="cloudinary_unsigned_preset">your_unsigned_preset</string>
 </resources>

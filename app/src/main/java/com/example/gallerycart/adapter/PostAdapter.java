@@ -1,5 +1,6 @@
 package com.example.gallerycart.adapter;
 
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +10,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.gallerycart.R;
 import com.example.gallerycart.data.entity.Post;
 
@@ -32,9 +34,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
     public void setPosts(List<Post> newPosts) {
         posts.clear();
-        if (newPosts != null) {
-            posts.addAll(newPosts);
-        }
+        if (newPosts != null) posts.addAll(newPosts);
         notifyDataSetChanged();
     }
 
@@ -52,39 +52,40 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
         holder.tvPostTitle.setText(post.getTitle() != null ? post.getTitle() : "Untitled");
 
-        // Format giá: nếu sau này cho phép 0 => "Free"
         double price = post.getPrice();
-        if (price <= 0) {
-            holder.tvPostPrice.setText("Free");
-        } else {
+        if (price <= 0) holder.tvPostPrice.setText("Free");
+        else {
             NumberFormat format = NumberFormat.getCurrencyInstance(Locale.getDefault());
             holder.tvPostPrice.setText(format.format(price));
         }
 
         holder.tvPostLikes.setText(post.getLikeCount() + " likes");
 
-        // Badge & hiệu ứng mờ theo isMature / price
         boolean isMature = post.isMature();
         if (isMature) {
             holder.tvPostBadge.setVisibility(View.VISIBLE);
             holder.tvPostBadge.setText("Mature");
-            holder.ivPostImage.setAlpha(0.5f); // ~ mờ 50%
+            holder.ivPostImage.setAlpha(0.5f);
         } else if (price > 0) {
             holder.tvPostBadge.setVisibility(View.GONE);
-            holder.ivPostImage.setAlpha(0.8f); // ~ mờ 20%
+            holder.ivPostImage.setAlpha(0.8f);
         } else {
             holder.tvPostBadge.setVisibility(View.GONE);
             holder.ivPostImage.setAlpha(1.0f);
         }
 
-        // Hiện tại chưa load ảnh Cloudinary: dùng placeholder defaultavatar
-        // Sau này có URL -> chỉ cần thay bằng thư viện load ảnh (Glide/Picasso/...)
-        holder.ivPostImage.setImageResource(R.drawable.defaultavatar);
+        String url = post.getImagePath();
+        if (!TextUtils.isEmpty(url)) {
+            Glide.with(holder.ivPostImage.getContext())
+                    .load(url)
+                    .placeholder(R.drawable.defaultavatar)
+                    .into(holder.ivPostImage);
+        } else {
+            holder.ivPostImage.setImageResource(R.drawable.defaultavatar);
+        }
 
         holder.itemView.setOnClickListener(v -> {
-            if (listener != null) {
-                listener.onPostClick(post);
-            }
+            if (listener != null) listener.onPostClick(post);
         });
     }
 

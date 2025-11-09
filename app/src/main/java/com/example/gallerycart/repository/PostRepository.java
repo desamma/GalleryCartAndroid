@@ -27,59 +27,87 @@ public class PostRepository {
         mainHandler = new Handler(Looper.getMainLooper());
     }
 
+    // ===== Callback types cho async =====
+
     public interface PostsCallback {
         void onResult(List<Post> posts);
     }
 
-    /**
-     * Create a new post
-     */
-    public long createPost(String title, String imagePath, double price, int userId) {
-        // Validate required fields
+    public interface PostCallback {
+        void onResult(Post post);
+    }
+
+    // ===== CRUD cơ bản (gọi từ background thread) =====
+
+    public long insertPost(Post post) {
+        return postDao.insert(post);
+    }
+
+    public void updatePost(Post post) {
+        postDao.update(post);
+    }
+
+    public void deletePost(int postId) {
+        postDao.deletePost(postId);
+    }
+
+    public Post getPostById(int postId) {
+        return postDao.getPostById(postId);
+    }
+
+    public List<Post> getAllPostsSync() {
+        return postDao.getAllPosts();
+    }
+
+    public List<Post> getPostsByUserSync(int userId) {
+        return postDao.getPostsByUser(userId);
+    }
+
+    // Helper tạo Post mới (validate cơ bản)
+    public long createPost(String title,
+                           String description,
+                           String imagePath,
+                           double price,
+                           boolean isMature,
+                           boolean isPortfolio,
+                           int userId) {
+
         if (title == null || title.trim().isEmpty()) {
             throw new IllegalArgumentException("Title is required");
         }
         if (imagePath == null || imagePath.trim().isEmpty()) {
-            throw new IllegalArgumentException("Image path is required");
+            throw new IllegalArgumentException("Image URL is required");
         }
-        if (price <= 0) {
-            // Hiện tại DB + trigger đang yêu cầu price > 0
-            // Nếu muốn hỗ trợ Free (0), cần sửa DB/migration sau.
-            throw new IllegalArgumentException("Price must be greater than 0");
+        if (price < 0) {
+            throw new IllegalArgumentException("Price cannot be negative");
         }
 
         Post post = new Post();
-        post.setTitle(title);
-        post.setImagePath(imagePath);
+        post.setTitle(title.trim());
+        post.setDescription(description != null ? description.trim() : null);
+        post.setImagePath(imagePath.trim());
         post.setPrice(price);
+        post.setMature(isMature);
+        post.setPortfolio(isPortfolio);
         post.setUserId(userId);
         post.setPostDate(new Date());
 
         return postDao.insert(post);
     }
 
-    /**
-     * Get posts by user (sync) - NÊN gọi từ background thread
-     */
-    public List<Post> getPostsByUser(int userId) {
-        return postDao.getPostsByUser(userId);
-    }
+    // ===== Post with details =====
 
-    /**
-     * Get post with details (including comment count)
-     */
     public PostWithDetails getPostWithDetails(int postId) {
         return postDao.getPostWithDetails(postId);
     }
 
-    /**
-     * Increment like count
-     */
+    // ===== Like =====
+
     public void likePost(int postId) {
         executorService.execute(() -> postDao.incrementLikeCount(postId));
     }
 
-    // ========== MỚI: API cho HomePage ==========
+    // ===== Async cho Home & View all =====
 
     public void getTopLikedPostsAsync(int limit, PostsCallback callback) {
         executorService.execute(() -> {
@@ -117,5 +145,12 @@ public class PostRepository {
         });
     }
 
-    // ==========================================
+    public void getPostByIdAsync(int postId, PostCallback callback) {
+        executorService.execute(() -> {
+            Post post = postDao.getPostById(postId);
+            if (callback != null) {
+                mainHandler.post(() -> callback.onResult(post));
+            }
+        });
+    }
 }
