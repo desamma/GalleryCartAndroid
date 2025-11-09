@@ -11,7 +11,7 @@ import java.util.Date;
                 parentColumns = "id",
                 childColumns = "userId",
                 onDelete = ForeignKey.CASCADE),
-        indices = {@Index(value = "userId", unique = true)})
+        indices = {@Index("userId")})
 public class Cart {
     @PrimaryKey(autoGenerate = true)
     private int id;
@@ -19,9 +19,13 @@ public class Cart {
     private int userId;
     private double totalPrice;
     private Date purchaseDate;
+    private Date createdDate;
+    private boolean isActive;
 
     public Cart() {
         this.totalPrice = 0.0;
+        this.createdDate = new Date();
+        this.isActive = true;
     }
 
     public int getId() { return id; }
@@ -35,4 +39,10 @@ public class Cart {
 
     public Date getPurchaseDate() { return purchaseDate; }
     public void setPurchaseDate(Date purchaseDate) { this.purchaseDate = purchaseDate; }
+
+    public Date getCreatedDate() { return createdDate; }
+    public void setCreatedDate(Date createdDate) { this.createdDate = createdDate; }
+
+    public boolean isActive() { return isActive; }
+    public void setActive(boolean active) { isActive = active; }
 }
