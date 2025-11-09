@@ -21,8 +21,9 @@ import com.example.gallerycart.data.entity.*;
         PostTag.class,
         Cart.class,
         CartItem.class,
-        MomoPayment.class
-}, version = 2, exportSchema = true)
+        MomoPayment.class,
+        Commission.class
+}, version = 3, exportSchema = true)
 @TypeConverters({Converters.class})
 public abstract class AppDatabase extends RoomDatabase {
 
@@ -37,6 +38,7 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract CartDao cartDao();
     public abstract CartItemDao cartItemDao();
     public abstract MomoPaymentDao momoPaymentDao();
+    public abstract CommissionDao commissionDao();
 
     public static AppDatabase getInstance(Context context) {
         if (INSTANCE == null) {
@@ -47,7 +49,7 @@ public abstract class AppDatabase extends RoomDatabase {
                                     AppDatabase.class,
                                     "gallery_cart_database")
                             .addCallback(roomCallback)
-                            .addMigrations(MIGRATION_1_2)
+                            .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                             .build();
                 }
             }
@@ -141,6 +143,13 @@ public abstract class AppDatabase extends RoomDatabase {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
             database.execSQL("ALTER TABLE user ADD COLUMN isEmailConfirmed INTEGER NOT NULL DEFAULT 0");
+        }
+    };
+
+    static final Migration MIGRATION_2_3 = new Migration(2, 3) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("CREATE TABLE `commissions` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `artistId` TEXT, `clientId` TEXT, `description` TEXT, `price` REAL NOT NULL, `deadline` TEXT, `status` TEXT, `filePath` TEXT, `createdAt` INTEGER NOT NULL)");
         }
     };
 }
