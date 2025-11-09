@@ -22,8 +22,9 @@ import com.example.gallerycart.data.entity.*;
         Cart.class,
         CartItem.class,
         MomoPayment.class,
-        Commission.class
-}, version = 3, exportSchema = true)
+        Commission.class,
+        PayosPayment.class
+}, version = 4, exportSchema = true)
 @TypeConverters({Converters.class})
 public abstract class AppDatabase extends RoomDatabase {
 
@@ -39,6 +40,7 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract CartItemDao cartItemDao();
     public abstract MomoPaymentDao momoPaymentDao();
     public abstract CommissionDao commissionDao();
+    public abstract PayosPaymentDao payosPaymentDao();
 
     public static AppDatabase getInstance(Context context) {
         if (INSTANCE == null) {
@@ -49,7 +51,7 @@ public abstract class AppDatabase extends RoomDatabase {
                                     AppDatabase.class,
                                     "gallery_cart_database")
                             .addCallback(roomCallback)
-                            .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+                            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
                             .build();
                 }
             }
@@ -57,22 +59,10 @@ public abstract class AppDatabase extends RoomDatabase {
         return INSTANCE;
     }
 
-    /**
-     * RoomDatabase.Callback to enforce CHECK constraints on database creation
-     * Note: Room doesn't support CHECK constraints directly in annotations,
-     * so we can add them via raw SQL in onCreate if needed for DB-level enforcement.
-     *
-     * However, for better app-level control and clearer error messages,
-     * validation should typically be done in the repository/service layer.
-     */
     private static final RoomDatabase.Callback roomCallback = new RoomDatabase.Callback() {
         @Override
         public void onCreate(@NonNull SupportSQLiteDatabase db) {
             super.onCreate(db);
-
-            // Example: Add CHECK constraints via raw SQL
-            // These will enforce constraints at database level
-            // Note: This runs AFTER Room creates tables, so we use ALTER TABLE or triggers
 
             // For likeCount >= 0
             db.execSQL("CREATE TRIGGER check_post_likeCount_insert " +
@@ -136,9 +126,6 @@ public abstract class AppDatabase extends RoomDatabase {
         }
     };
 
-    /**
-     * Migration stub example for future schema changes
-     */
     static final Migration MIGRATION_1_2 = new Migration(1, 2) {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
@@ -150,6 +137,49 @@ public abstract class AppDatabase extends RoomDatabase {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
             database.execSQL("CREATE TABLE `commissions` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `artistId` TEXT, `clientId` TEXT, `description` TEXT, `price` REAL NOT NULL, `deadline` TEXT, `status` TEXT, `filePath` TEXT, `createdAt` INTEGER NOT NULL)");
+        }
+    };
+
+    static final Migration MIGRATION_3_4 = new Migration(3, 4) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("CREATE TABLE `payos_payment` (" +
+                    "`id` TEXT PRIMARY KEY NOT NULL, " +
+                    "`cartId` INTEGER NOT NULL, " +
+                    "`orderCode` INTEGER NOT NULL, " +
+                    "`amount` INTEGER NOT NULL, " +
+                    "`amountPaid` INTEGER NOT NULL, " +
+                    "`amountRemaining` INTEGER NOT NULL, " +
+                    "`status` TEXT NOT NULL, " +
+                    "`createdAt` INTEGER, " +
+                    "`canceledAt` INTEGER, " +
+                    "`cancellationReason` TEXT, " +
+                    "`transactionsJson` TEXT, " +
+                    "FOREIGN KEY(`cartId`) REFERENCES `cart`(`id`) ON DELETE CASCADE)");
+
+            database.execSQL("CREATE UNIQUE INDEX `index_payos_payment_cartId` ON `payos_payment` (`cartId`)");
+            database.execSQL("CREATE INDEX `index_payos_payment_orderCode` ON `payos_payment` (`orderCode`)");
+
+            database.execSQL("CREATE TABLE `cart_new` (" +
+                    "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                    "`userId` INTEGER NOT NULL, " +
+                    "`totalPrice` REAL NOT NULL, " +
+                    "`purchaseDate` INTEGER, " +
+                    "`createdDate` INTEGER, " +
+                    "`isActive` INTEGER NOT NULL, " +
+                    "FOREIGN KEY(`userId`) REFERENCES `user`(`id`) ON DELETE CASCADE)");
+
+            database.execSQL("INSERT INTO `cart_new` (`id`, `userId`, `totalPrice`, `purchaseDate`, `createdDate`, `isActive`) " +
+                    "SELECT `id`, `userId`, `totalPrice`, `purchaseDate`, " +
+                    "COALESCE(`purchaseDate`, strftime('%s', 'now') * 1000), " +
+                    "CASE WHEN `purchaseDate` IS NULL THEN 1 ELSE 0 END " +
+                    "FROM `cart`");
+
+            database.execSQL("DROP TABLE `cart`");
+
+            database.execSQL("ALTER TABLE `cart_new` RENAME TO `cart`");
+
+            database.execSQL("CREATE INDEX `index_cart_userId` ON `cart` (`userId`)");
         }
     };
 }
