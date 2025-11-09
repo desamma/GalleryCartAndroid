@@ -1,10 +1,14 @@
 package com.example.gallerycart.repository;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
+
 import com.example.gallerycart.data.AppDatabase;
 import com.example.gallerycart.data.dao.PostDao;
 import com.example.gallerycart.data.entity.Post;
 import com.example.gallerycart.data.model.PostWithDetails;
+
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -14,11 +18,17 @@ public class PostRepository {
 
     private final PostDao postDao;
     private final ExecutorService executorService;
+    private final Handler mainHandler;
 
     public PostRepository(Context context) {
         AppDatabase database = AppDatabase.getInstance(context);
         postDao = database.postDao();
         executorService = Executors.newSingleThreadExecutor();
+        mainHandler = new Handler(Looper.getMainLooper());
+    }
+
+    public interface PostsCallback {
+        void onResult(List<Post> posts);
     }
 
     /**
@@ -33,6 +43,8 @@ public class PostRepository {
             throw new IllegalArgumentException("Image path is required");
         }
         if (price <= 0) {
+            // Hiện tại DB + trigger đang yêu cầu price > 0
+            // Nếu muốn hỗ trợ Free (0), cần sửa DB/migration sau.
             throw new IllegalArgumentException("Price must be greater than 0");
         }
 
@@ -47,7 +59,7 @@ public class PostRepository {
     }
 
     /**
-     * Get posts by user
+     * Get posts by user (sync) - NÊN gọi từ background thread
      */
     public List<Post> getPostsByUser(int userId) {
         return postDao.getPostsByUser(userId);
@@ -66,4 +78,44 @@ public class PostRepository {
     public void likePost(int postId) {
         executorService.execute(() -> postDao.incrementLikeCount(postId));
     }
+
+    // ========== MỚI: API cho HomePage ==========
+
+    public void getTopLikedPostsAsync(int limit, PostsCallback callback) {
+        executorService.execute(() -> {
+            List<Post> result = postDao.getTopLikedPosts(limit);
+            if (callback != null) {
+                mainHandler.post(() -> callback.onResult(result));
+            }
+        });
+    }
+
+    public void getRandomPostsAsync(int limit, PostsCallback callback) {
+        executorService.execute(() -> {
+            List<Post> result = postDao.getRandomPosts(limit);
+            if (callback != null) {
+                mainHandler.post(() -> callback.onResult(result));
+            }
+        });
+    }
+
+    public void getRecentPostsAsync(int limit, PostsCallback callback) {
+        executorService.execute(() -> {
+            List<Post> result = postDao.getRecentPosts(limit);
+            if (callback != null) {
+                mainHandler.post(() -> callback.onResult(result));
+            }
+        });
+    }
+
+    public void getAllPostsAsync(PostsCallback callback) {
+        executorService.execute(() -> {
+            List<Post> result = postDao.getAllPosts();
+            if (callback != null) {
+                mainHandler.post(() -> callback.onResult(result));
+            }
+        });
+    }
+
+    // ==========================================
 }
