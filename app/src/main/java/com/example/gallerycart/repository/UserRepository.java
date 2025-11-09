@@ -24,7 +24,9 @@ public class UserRepository {
     public LiveData<List<User>> getAllUsers() {
         return userDao.getAllUsers();
     }
-
+    public LiveData<List<User>> getAllArtists(){
+        return  userDao.getAllArtists();
+    }
     /**
      * Create a new user with password hashing
      */

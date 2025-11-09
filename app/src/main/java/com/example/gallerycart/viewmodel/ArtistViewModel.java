@@ -17,7 +17,7 @@ public class ArtistViewModel extends AndroidViewModel {
     public ArtistViewModel(@NonNull Application application) {
         super(application);
         userRepository = new UserRepository(application);
-        allArtists = userRepository.getAllUsers(); // Assuming you have a method to get all users
+        allArtists = userRepository.getAllArtists();
     }
 
     public LiveData<List<User>> getAllArtists() {
