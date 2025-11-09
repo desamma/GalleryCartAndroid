@@ -62,11 +62,12 @@ public class AllArtistsActivity extends AppCompatActivity {
 
             @Override
             public void onRequestCommission(User artist) {
-                // TODO: Commission
                 if (artist.getCommissionStatus() == 1) {
-//                    Intent intent = new Intent(AllArtistsActivity.this, CommissionRequestActivity.class);
-//                    intent.putExtra("artist_id", artist.getId());
-//                    startActivity(intent);
+                    Intent intent = new Intent(AllArtistsActivity.this, CommissionRequestActivity.class);
+                    intent.putExtra("ARTIST_ID", artist.getId());
+                    intent.putExtra("ARTIST_NAME", artist.getUsername());
+                    intent.putExtra("ARTIST_DESCRIPTION", artist.getProfessionSummary());
+                    startActivity(intent);
                 } else {
                     String status = artist.getCommissionStatus() == 0 ? "closed" : "full";
                     Toast.makeText(AllArtistsActivity.this,

@@ -45,6 +45,17 @@
         <activity
             android:name=".AllArtistsActivity"
             android:exported="false" />
+        <activity
+            android:name=".CommissionRequestActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".CommissionRequestActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".AllCommissionsActivity"
+            android:exported="false" />
 
     </application>
 
