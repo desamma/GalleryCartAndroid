@@ -5,6 +5,7 @@ import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Update;
 import com.example.gallerycart.data.entity.Cart;
+import com.example.gallerycart.data.model.CartItemWithPost;
 import com.example.gallerycart.data.model.CartWithItems;
 import java.util.List;
 
@@ -34,6 +35,12 @@ public interface CartDao {
             "(SELECT COUNT(*) FROM cart_item WHERE cartId = c.id) as itemCount " +
             "FROM cart c WHERE c.id = :cartId")
     CartWithItems getCartWithItemsById(int cartId);
+
+    @Query("SELECT ci.*, p.title, p.imagePath, p.price " +
+            "FROM cart_item ci " +
+            "INNER JOIN post p ON ci.postId = p.id " +
+            "WHERE ci.cartId = :cartId")
+    List<CartItemWithPost> getCartItemsWithPosts(int cartId);
 
     @Query("UPDATE cart SET totalPrice = :totalPrice WHERE id = :cartId")
     void updateTotalPrice(int cartId, double totalPrice);
