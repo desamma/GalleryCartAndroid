@@ -24,7 +24,7 @@ import com.example.gallerycart.data.entity.*;
         MomoPayment.class,
         Commission.class,
         PayosPayment.class
-}, version = 4, exportSchema = true)
+}, version = 5, exportSchema = true)
 @TypeConverters({Converters.class})
 public abstract class AppDatabase extends RoomDatabase {
 
@@ -50,8 +50,9 @@ public abstract class AppDatabase extends RoomDatabase {
                                     context.getApplicationContext(),
                                     AppDatabase.class,
                                     "gallery_cart_database")
+                            .fallbackToDestructiveMigration()
                             .addCallback(roomCallback)
-                            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+                            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
                             .build();
                 }
             }
@@ -182,4 +183,30 @@ public abstract class AppDatabase extends RoomDatabase {
             database.execSQL("CREATE INDEX `index_cart_userId` ON `cart` (`userId`)");
         }
     };
+
+    static final Migration MIGRATION_4_5 = new Migration(4, 5) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("DROP TABLE IF EXISTS payos_payment");
+
+            database.execSQL("CREATE TABLE `payos_payment` (" +
+                    "`id` TEXT NOT NULL PRIMARY KEY, " +
+                    "`cartId` INTEGER NOT NULL, " +
+                    "`orderCode` INTEGER NOT NULL, " +
+                    "`amount` INTEGER NOT NULL, " +
+                    "`amountPaid` INTEGER NOT NULL, " +
+                    "`amountRemaining` INTEGER NOT NULL, " +
+                    "`status` TEXT, " +
+                    "`createdAt` INTEGER, " +
+                    "`canceledAt` INTEGER, " +
+                    "`cancellationReason` TEXT, " +
+                    "`transactionsJson` TEXT, " +
+                    "FOREIGN KEY(`cartId`) REFERENCES `cart`(`id`) ON DELETE CASCADE)");
+
+            // Recreate indices
+            database.execSQL("CREATE UNIQUE INDEX `index_payos_payment_cartId` ON `payos_payment` (`cartId`)");
+            database.execSQL("CREATE INDEX `index_payos_payment_orderCode` ON `payos_payment` (`orderCode`)");
+        }
+    };
+
 }

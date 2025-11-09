@@ -47,6 +47,9 @@ public interface CartDao {
     @Query("UPDATE cart SET isActive = 1 WHERE id = :cartId")
     void setCartActive(int cartId);
 
+    @Query("UPDATE cart SET isActive = 0 WHERE id = :cartId")
+    void setCartInactive(int cartId);
+
     @Query("DELETE FROM cart WHERE id = :cartId")
     void deleteCart(int cartId);
 }
