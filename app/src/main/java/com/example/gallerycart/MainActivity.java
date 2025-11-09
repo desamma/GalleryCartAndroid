@@ -7,17 +7,32 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.gallerycart.adapter.PostAdapter;
+import com.example.gallerycart.data.entity.Post;
+import com.example.gallerycart.repository.PostRepository;
 import com.example.gallerycart.util.SessionManager;
 import com.google.android.material.button.MaterialButton;
+
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
     private TextView tvUsername;
     private MaterialButton btnLogout;
     private SessionManager sessionManager;
+
+    private RecyclerView rvFeaturedPosts;
+    private RecyclerView rvRandomPosts;
+    private PostAdapter featuredAdapter;
+    private PostAdapter randomAdapter;
+    private PostRepository postRepository;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,9 +50,13 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
+        postRepository = new PostRepository(this);
+
         initViews();
+        setupRecyclerViews();
         loadUserData();
         setupListeners();
+        loadPostSections();
     }
 
     @Override
@@ -54,12 +73,29 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
             return true;
         }
+        // Sau này nếu thêm action_home / create_post thì handle ở đây
         return super.onOptionsItemSelected(item);
     }
 
     private void initViews() {
         tvUsername = findViewById(R.id.tvUsername);
         btnLogout = findViewById(R.id.btnLogout);
+
+        rvFeaturedPosts = findViewById(R.id.rvFeaturedPosts);
+        rvRandomPosts = findViewById(R.id.rvRandomPosts);
+    }
+
+    private void setupRecyclerViews() {
+        featuredAdapter = new PostAdapter(this::onPostClicked);
+        randomAdapter = new PostAdapter(this::onPostClicked);
+
+        rvFeaturedPosts.setLayoutManager(new LinearLayoutManager(this));
+        rvFeaturedPosts.setAdapter(featuredAdapter);
+        rvFeaturedPosts.setNestedScrollingEnabled(false);
+
+        rvRandomPosts.setLayoutManager(new LinearLayoutManager(this));
+        rvRandomPosts.setAdapter(randomAdapter);
+        rvRandomPosts.setNestedScrollingEnabled(false);
     }
 
     private void loadUserData() {
@@ -71,19 +107,38 @@ public class MainActivity extends AppCompatActivity {
         btnLogout.setOnClickListener(v -> showLogoutDialog());
     }
 
+    private void loadPostSections() {
+        // 5 bài nổi bật (like nhiều nhất)
+        postRepository.getTopLikedPostsAsync(5, this::updateFeaturedPosts);
+
+        // 5 bài ngẫu nhiên
+        postRepository.getRandomPostsAsync(5, this::updateRandomPosts);
+    }
+
+    private void updateFeaturedPosts(List<Post> posts) {
+        featuredAdapter.setPosts(posts);
+    }
+
+    private void updateRandomPosts(List<Post> posts) {
+        randomAdapter.setPosts(posts);
+    }
+
+    private void onPostClicked(Post post) {
+        // Tạm thời chỉ show Toast.
+        // Sau này sẽ chuyển sang màn chi tiết Post / View all art.
+        Toast.makeText(this, "Post: " + post.getTitle(), Toast.LENGTH_SHORT).show();
+    }
+
     private void showLogoutDialog() {
         new AlertDialog.Builder(this)
                 .setTitle("Logout")
-                .setMessage("Are you sure you want to logout?")
-                .setPositiveButton("Yes", (dialog, which) -> performLogout())
-                .setNegativeButton("No", null)
+                .setMessage("Do you really want to log out?")
+                .setPositiveButton("Yes", (dialog, which) -> {
+                    sessionManager.logout();
+                    navigateToLogin();
+                })
+                .setNegativeButton("Cancel", null)
                 .show();
-    }
-
-    private void performLogout() {
-        sessionManager.logout();
-        Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show();
-        navigateToLogin();
     }
 
     private void navigateToLogin() {
