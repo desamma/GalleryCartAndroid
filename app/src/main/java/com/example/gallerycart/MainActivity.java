@@ -123,6 +123,10 @@ public class MainActivity extends AppCompatActivity {
             intent.putExtra("IS_ARTIST_VIEW", true);
             startActivity(intent);
             return true;
+        } else if (id == R.id.action_cart) {
+            Intent intent = new Intent(this, CartActivity.class);
+            startActivity(intent);
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
