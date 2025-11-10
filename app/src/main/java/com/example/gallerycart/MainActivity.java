@@ -6,7 +6,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -37,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
     private PostAdapter randomAdapter;
     private PostRepository postRepository;
 
-    private boolean isArtist = false; // để show/hide menu Create Post
+    private boolean isArtist = false; // để hiện/ẩn menu Create Post
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +47,6 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         sessionManager = new SessionManager(this);
-
         if (!sessionManager.isLoggedIn()) {
             navigateToLogin();
             return;
@@ -61,7 +59,16 @@ public class MainActivity extends AppCompatActivity {
         loadUserData();
         loadUserRole();
         setupListeners();
-        loadPostSections();
+        loadPostSections(); // lần đầu khi vừa mở app
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // 🔁 Mỗi lần quay lại Home (sau khi create/edit post) → reload featured + random
+        if (sessionManager != null && sessionManager.isLoggedIn()) {
+            loadPostSections();
+        }
     }
 
     @Override
@@ -85,10 +92,8 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         if (id == R.id.action_home) {
-            // Ở MainActivity thì chỉ refresh, các Activity khác sau này có thể gọi về Home
-            Intent intent = new Intent(this, MainActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(intent);
+            // Đã ở Home rồi: refresh lại luôn
+            loadPostSections();
             return true;
         } else if (id == R.id.action_all_artists) {
             Intent intent = new Intent(this, AllArtistsActivity.class);
@@ -157,9 +162,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadPostSections() {
-        // 5 bài nổi bật
+        // Top 5 post nhiều like nhất
         postRepository.getTopLikedPostsAsync(5, this::updateFeaturedPosts);
-        // 5 bài ngẫu nhiên
+        // 5 post random
         postRepository.getRandomPostsAsync(5, this::updateRandomPosts);
     }
 
