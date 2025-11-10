@@ -81,9 +81,19 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         MenuItem createPostItem = menu.findItem(R.id.action_create_post);
+        MenuItem myCommissionsItem = menu.findItem(R.id.action_my_commissions);
+        MenuItem artistCommissionsItem = menu.findItem(R.id.action_artist_commissions);
+
         if (createPostItem != null) {
             createPostItem.setVisible(isArtist);
         }
+        if (myCommissionsItem != null) {
+            myCommissionsItem.setVisible(!isArtist);
+        }
+        if (artistCommissionsItem != null) {
+            artistCommissionsItem.setVisible(isArtist);
+        }
+
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -103,9 +113,14 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(this, PostEditActivity.class);
             startActivity(intent);
             return true;
-        } else if (item.getItemId() == R.id.action_all_artists) {
+        } else if (id == R.id.action_my_commissions) {
             Intent intent = new Intent(this, AllCommissionsActivity.class);
-            intent.putExtra("IS_ARTIST_VIEW", false); // or true if user is artist
+            intent.putExtra("IS_ARTIST_VIEW", false);
+            startActivity(intent);
+            return true;
+        } else if (id == R.id.action_artist_commissions) {
+            Intent intent = new Intent(this, AllCommissionsActivity.class);
+            intent.putExtra("IS_ARTIST_VIEW", true);
             startActivity(intent);
             return true;
         }
@@ -148,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
             UserRepository userRepository = new UserRepository(getApplicationContext());
             User user = userRepository.getUserById(userId);
             if (user != null) {
-                boolean artist = "artist".equalsIgnoreCase(user.getRole()) || user.isArtist();
+                boolean artist = "artist".equalsIgnoreCase(user.get_role()) || user.isArtist();
                 runOnUiThread(() -> {
                     isArtist = artist;
                     invalidateOptionsMenu();
@@ -201,7 +216,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void navigateToLogin() {
         Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.setFlags(Intent.FLAG_.ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
     }

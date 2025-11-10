@@ -50,6 +50,7 @@ public class AllCommissionsActivity extends AppCompatActivity {
             public void onViewDetails(Commission commission) {
                 Intent intent = new Intent(AllCommissionsActivity.this, CommissionDetailActivity.class);
                 intent.putExtra("COMMISSION_ID", commission.getId());
+                intent.putExtra("IS_ARTIST_VIEW", isArtistView);
                 startActivity(intent);
             }
 

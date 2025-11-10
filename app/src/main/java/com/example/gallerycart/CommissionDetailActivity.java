@@ -37,6 +37,7 @@ public class CommissionDetailActivity extends AppCompatActivity {
 
         sessionManager = new SessionManager(this);
         commissionViewModel = new ViewModelProvider(this).get(CommissionViewModel.class);
+        isArtistView = getIntent().getBooleanExtra("IS_ARTIST_VIEW", false);
 
         initViews();
         loadCommissionData();
@@ -73,8 +74,6 @@ public class CommissionDetailActivity extends AppCompatActivity {
         commissionViewModel.getCommissionById(commissionId).observe(this, commission -> {
             if (commission != null) {
                 currentCommission = commission;
-                int currentUserId = sessionManager.getUserId();
-                isArtistView = currentCommission.getArtistId() == currentUserId;
                 displayCommissionData();
             } else {
                 Toast.makeText(this, "Commission not found", Toast.LENGTH_SHORT).show();
