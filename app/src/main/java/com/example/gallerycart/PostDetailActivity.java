@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -18,11 +19,11 @@ import com.bumptech.glide.Glide;
 import com.example.gallerycart.adapter.CommentAdapter;
 import com.example.gallerycart.data.entity.Comment;
 import com.example.gallerycart.data.entity.Post;
-import com.example.gallerycart.repository.CartRepository;
 import com.example.gallerycart.repository.CommentRepository;
 import com.example.gallerycart.repository.FavouriteRepository;
 import com.example.gallerycart.repository.PostRepository;
 import com.example.gallerycart.util.SessionManager;
+import com.example.gallerycart.viewmodel.CartViewModel;
 import com.google.android.material.button.MaterialButton;
 
 import java.text.SimpleDateFormat;
@@ -40,7 +41,7 @@ public class PostDetailActivity extends AppCompatActivity {
     private TextView tvLikes;
     private TextView tvDescription;
     private TextView tvBadge;
-    private MaterialButton btnDownload;
+    private MaterialButton btnAddToCart;
     private MaterialButton btnEdit;
     private MaterialButton btnLike;
 
@@ -54,6 +55,7 @@ public class PostDetailActivity extends AppCompatActivity {
     private CommentRepository commentRepository;
     private SessionManager sessionManager;
     private Post currentPost;
+    private CartViewModel cartViewModel;
 
     private boolean isFavourited = false;
     private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
@@ -78,9 +80,11 @@ public class PostDetailActivity extends AppCompatActivity {
         favouriteRepository = new FavouriteRepository(this);
         commentRepository = new CommentRepository(this);
         sessionManager = new SessionManager(this);
+        cartViewModel = new ViewModelProvider(this).get(CartViewModel.class);
 
         initViews();
         loadPost(postId);
+        observeViewModel();
     }
 
     private void initViews() {
@@ -90,7 +94,7 @@ public class PostDetailActivity extends AppCompatActivity {
         tvLikes = findViewById(R.id.tvPostLikesDetail);
         tvDescription = findViewById(R.id.tvPostDescriptionDetail);
         tvBadge = findViewById(R.id.tvPostBadgeDetail);
-        btnDownload = findViewById(R.id.btnDownload);
+        btnAddToCart = findViewById(R.id.btnAddToCart);
         btnEdit = findViewById(R.id.btnEditPost);
         btnLike = findViewById(R.id.btnLike);
 
@@ -129,6 +133,16 @@ public class PostDetailActivity extends AppCompatActivity {
         });
     }
 
+    private void observeViewModel() {
+        cartViewModel.addToCartResult.observe(this, success -> {
+            if (success) {
+                Toast.makeText(this, "Added to cart", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Failed to add to cart", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
     /** KHÔNG truy vấn DB để lấy username trong UI thread nữa. */
     private List<CommentAdapter.CommentDisplay> toDisplay(List<Comment> comments) {
         List<CommentAdapter.CommentDisplay> list = new ArrayList<>();
@@ -151,7 +165,13 @@ public class PostDetailActivity extends AppCompatActivity {
         tvLikes.setText(currentPost.getLikeCount() + " likes");
 
         double price = currentPost.getPrice();
-        if (price <= 0) tvPrice.setText("Free"); else tvPrice.setText(String.valueOf(price));
+        if (price <= 0) {
+            tvPrice.setText("Free");
+            btnAddToCart.setText("Download");
+        } else {
+            tvPrice.setText(String.valueOf(price));
+            btnAddToCart.setText("Add to Cart");
+        }
 
         boolean isMature = currentPost.isMature();
         if (isMature) {
@@ -176,12 +196,11 @@ public class PostDetailActivity extends AppCompatActivity {
         int currentUserId = sessionManager.getUserId();
         boolean isOwner = (currentUserId != -1 && currentUserId == currentPost.getUserId());
 
-        // Ẩn Download nếu là tác giả
         if (isOwner) {
-            btnDownload.setVisibility(MaterialButton.GONE);
+            btnAddToCart.setVisibility(MaterialButton.GONE);
         } else {
-            btnDownload.setVisibility(MaterialButton.VISIBLE);
-            btnDownload.setOnClickListener(v -> onDownloadClicked(url, price));
+            btnAddToCart.setVisibility(MaterialButton.VISIBLE);
+            btnAddToCart.setOnClickListener(v -> onAddToCartClicked());
         }
 
         // Edit chỉ dành cho owner
@@ -268,14 +287,15 @@ public class PostDetailActivity extends AppCompatActivity {
         }));
     }
 
-    private void onDownloadClicked(String url, double price) {
+    private void onAddToCartClicked() {
         if (currentPost == null) return;
-        if (TextUtils.isEmpty(url)) {
-            Toast.makeText(this, "No image URL", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        if (price <= 0) {
+        
+        String url = currentPost.getImagePath();
+        if (currentPost.getPrice() <= 0) {
+            if (TextUtils.isEmpty(url)) {
+                Toast.makeText(this, "No image URL", Toast.LENGTH_SHORT).show();
+                return;
+            }
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             startActivity(intent);
         } else {
@@ -284,15 +304,7 @@ public class PostDetailActivity extends AppCompatActivity {
                 Toast.makeText(this, "Please login first", Toast.LENGTH_SHORT).show();
                 return;
             }
-            new Thread(() -> {
-                try {
-                    CartRepository cartRepository = new CartRepository(getApplicationContext());
-                    cartRepository.addToCart(userId, currentPost.getId(), 1);
-                    runOnUiThread(() -> Toast.makeText(this, "Added to cart, proceed to payment.", Toast.LENGTH_SHORT).show());
-                } catch (Exception e) {
-                    runOnUiThread(() -> Toast.makeText(this, "Failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
-                }
-            }).start();
+            cartViewModel.addToCart(userId, currentPost.getId());
         }
     }
 
