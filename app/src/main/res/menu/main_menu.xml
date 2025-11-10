@@ -31,5 +31,8 @@
         android:title="Cart"
         android:icon="@drawable/ic_cart"
         app:showAsAction="ifRoom" />
-
+    <item
+        android:id="@+id/action_user_profile"
+        android:title="User Profile"
+        app:showAsAction="never" />
 </menu>
