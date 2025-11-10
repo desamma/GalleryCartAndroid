@@ -44,7 +44,7 @@
 
             <Button
                 android:id="@+id/btnCheckout"
-                android:width="48dp"
+                android:width="128dp"
                 android:height="48dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
