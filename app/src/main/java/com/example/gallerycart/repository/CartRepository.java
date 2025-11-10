@@ -117,6 +117,34 @@ public class CartRepository {
         });
     }
 
+    public void finalizePurchase(int cartId) {
+        db.runInTransaction(() -> {
+            Cart cart = cartDao.getCartById(cartId);
+            if (cart == null || !cart.isActive()) {
+                return;
+            }
+
+            List<CartItemWithPost> cartWithItems = cartDao.getCartItemsWithPosts(cart.getId());
+            if (cartWithItems != null && !cartWithItems.isEmpty()) {
+                for (CartItemWithPost ciwp : cartWithItems) {
+                    if (ciwp != null && ciwp.getCartItem() != null) {
+                        postDao.incrementSaleCount(ciwp.getCartItem().getPostId());
+                    }
+                }
+            }
+
+            long nowMillis = new Date().getTime();
+            cartDao.setPurchaseDate(cart.getId(), nowMillis);
+
+            cartDao.deactivateAllUserCarts(cart.getUserId());
+            Cart newCart = new Cart();
+            newCart.setUserId(cart.getUserId());
+            newCart.setTotalPrice(0.0);
+            newCart.setActive(true);
+            cartDao.insert(newCart);
+        });
+    }
+
     public void updateCartItem(CartItem item) {
         cartItemDao.update(item);
         updateCartTotal(item.getCartId());
