@@ -27,9 +27,7 @@ public class UserRepository {
     public LiveData<List<User>> getAllArtists(){
         return  userDao.getAllArtists();
     }
-    /**
-     * Create a new user with password hashing
-     */
+
     public long createUser(String username, String email, String role,
                            String plainPassword, Date userDob) {
         if (username == null || username.trim().isEmpty()) {
@@ -62,9 +60,6 @@ public class UserRepository {
         return userDao.insert(user);
     }
 
-    /**
-     * Authenticate user with username and password
-     */
     public User authenticateUser(String username, String plainPassword) {
         User user = userDao.getUserByUsername(username);
         if (user == null) {
@@ -75,37 +70,22 @@ public class UserRepository {
         return isValid ? user : null;
     }
 
-    /**
-     * Get user by ID
-     */
     public User getUserById(int userId) {
         return userDao.getUserById(userId);
     }
 
-    /**
-     * Get user by username
-     */
     public User getUserByUsername(String username) {
         return userDao.getUserByUsername(username);
     }
 
-    /**
-     * Get user by email
-     */
     public User getUserByEmail(String email) {
         return userDao.getUserByEmail(email);
     }
 
-    /**
-     * Update user profile
-     */
     public void updateUser(User user) {
         executorService.execute(() -> userDao.update(user));
     }
 
-    /**
-     * Ban/unban user
-     */
     public void setBanStatus(int userId, boolean isBanned) {
         executorService.execute(() -> {
             User user = userDao.getUserById(userId);
@@ -116,9 +96,6 @@ public class UserRepository {
         });
     }
 
-    /**
-     * Update email confirmation status
-     */
     public void setEmailConfirmed(int userId, boolean confirmed) {
         executorService.execute(() -> userDao.updateEmailConfirmation(userId, confirmed));
     }

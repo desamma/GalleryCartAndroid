@@ -4,23 +4,22 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     card_view:cardCornerRadius="8dp"
-    card_view:cardElevation="3dp"
-    android:layout_margin="8dp"
-    android:foreground="?attr/selectableItemBackground">
+    card_view:cardElevation="2dp"
+    android:layout_margin="8dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="10dp"
+        android:padding="12dp"
         android:gravity="center_vertical">
 
         <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/cart_item_image"
+            android:id="@+id/sold_item_image"
             android:layout_width="56dp"
             android:layout_height="56dp"
             android:src="@drawable/placeholder"
-            android:contentDescription="Cart item image" />
+            android:contentDescription="Product image" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -30,7 +29,7 @@
             android:layout_marginStart="12dp">
 
             <TextView
-                android:id="@+id/cart_item_title"
+                android:id="@+id/sold_item_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Product title"
@@ -40,21 +39,14 @@
                 android:ellipsize="end"/>
 
             <TextView
-                android:id="@+id/cart_item_price"
+                android:id="@+id/sold_item_unit_price"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Price"
-                android:textSize="14sp"
-                android:layout_marginTop="4dp"
-                android:textColor="#333"/>
+                android:text="Price: 0 VND"
+                android:textSize="13sp"
+                android:layout_marginTop="4dp" />
         </LinearLayout>
 
-        <ImageButton
-            android:id="@+id/btn_remove"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_menu_delete"
-            android:contentDescription="Remove" />
     </LinearLayout>
+
 </androidx.cardview.widget.CardView>

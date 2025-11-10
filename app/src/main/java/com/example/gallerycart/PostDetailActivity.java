@@ -138,7 +138,6 @@ public class PostDetailActivity extends AppCompatActivity {
         }
 
         if (price <= 0) {
-            // Free → mở trực tiếp ảnh (demo)
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             startActivity(intent);
         } else {

@@ -109,18 +109,14 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void setupListeners() {
-        // Artist toggle
         switchIsArtist.setOnCheckedChangeListener((buttonView, isChecked) -> {
             layoutArtistFields.setVisibility(isChecked ? View.VISIBLE : View.GONE);
         });
 
-        // Date picker
         etDateOfBirth.setOnClickListener(v -> showDatePicker());
 
-        // Register button
         btnRegister.setOnClickListener(v -> performRegister());
 
-        // Login link
         tvLoginLink.setOnClickListener(v -> finish());
     }
 
@@ -136,9 +132,8 @@ public class RegisterActivity extends AppCompatActivity {
                 selectedDate.get(Calendar.DAY_OF_MONTH)
         );
 
-        // Set max date to 18 years ago
         Calendar maxDate = Calendar.getInstance();
-        maxDate.add(Calendar.YEAR, -18);
+        maxDate.add(Calendar.YEAR, -0);
         datePickerDialog.getDatePicker().setMaxDate(maxDate.getTimeInMillis());
 
         datePickerDialog.show();
