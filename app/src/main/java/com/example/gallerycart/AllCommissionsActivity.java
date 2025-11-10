@@ -130,8 +130,9 @@ public class AllCommissionsActivity extends AppCompatActivity {
             @Override
             public void onOpenWorkLink(Commission commission) {
                 if (commission.getWorkLink() != null && !commission.getWorkLink().isEmpty()) {
-                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(commission.getWorkLink()));
-                    startActivity(browserIntent);
+                    Intent intent = new Intent(AllCommissionsActivity.this, ViewWorkActivity.class);
+                    intent.putExtra("WORK_LINK", commission.getWorkLink());
+                    startActivity(intent);
                 }
             }
         });
