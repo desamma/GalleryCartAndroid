@@ -39,7 +39,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="220dp"
                 android:scaleType="centerCrop"
-                android:src="@drawable/defaultavatar" />
+                android:src="@drawable/post_placeholder" />
 
             <TextView
                 android:id="@+id/tvPostTitleDetail"
@@ -87,14 +87,28 @@
                 android:textColor="@android:color/white"
                 android:padding="4dp"
                 android:layout_marginTop="8dp"
-                android:background="@drawable/defaultavatar"
+                android:background="@drawable/bg_mature_badge"
                 android:visibility="gone" />
 
+            <!-- Hàng nút hành động -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:layout_marginTop="16dp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnLike"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Like"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:textAllCaps="false" />
+
+                <View
+                    android:layout_width="8dp"
+                    android:layout_height="0dp" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnDownload"
@@ -118,6 +132,52 @@
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                     android:textAllCaps="false"
                     android:visibility="gone" />
+            </LinearLayout>
+
+            <!-- Comments title -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Comments"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:textColor="@color/text_primary"
+                android:layout_marginTop="16dp" />
+
+            <!-- Danh sách comment -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvComments"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
+                tools:listitem="@layout/item_comment" />
+
+            <!-- Ô nhập comment -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="8dp">
+
+                <EditText
+                    android:id="@+id/etComment"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="Write a comment..."
+                    android:singleLine="true"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_secondary"
+                    android:textSize="14sp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnSendComment"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Send"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:textAllCaps="false"
+                    android:layout_marginStart="8dp" />
             </LinearLayout>
 
         </LinearLayout>

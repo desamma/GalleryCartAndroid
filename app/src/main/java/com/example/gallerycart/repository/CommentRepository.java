@@ -1,42 +1,37 @@
 package com.example.gallerycart.repository;
 
 import android.content.Context;
+
 import com.example.gallerycart.data.AppDatabase;
 import com.example.gallerycart.data.dao.CommentDao;
 import com.example.gallerycart.data.entity.Comment;
-import java.util.Date;
+
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class CommentRepository {
+    private final CommentDao dao;
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
-    private final CommentDao commentDao;
+    public interface CommentsCallback { void onResult(List<Comment> comments); }
+    public interface IdCallback { void onResult(long id); }
 
-    public CommentRepository(Context context) {
-        AppDatabase database = AppDatabase.getInstance(context);
-        commentDao = database.commentDao();
+    public CommentRepository(Context ctx) {
+        dao = AppDatabase.getInstance(ctx).commentDao();
     }
 
-    /**
-     * Add a comment to a post
-     */
-    public long addComment(String content, int userId, int postId) {
-        if (content == null || content.trim().isEmpty()) {
-            throw new IllegalArgumentException("Comment content is required");
-        }
-
-        Comment comment = new Comment();
-        comment.setContent(content);
-        comment.setUserId(userId);
-        comment.setPostId(postId);
-        comment.setCommentDate(new Date());
-
-        return commentDao.insert(comment);
+    public void addCommentAsync(Comment c, IdCallback cb) {
+        executor.execute(() -> {
+            long id = dao.insert(c);
+            if (cb != null) cb.onResult(id);
+        });
     }
 
-    /**
-     * Get comments for a post
-     */
-    public List<Comment> getCommentsByPost(int postId) {
-        return commentDao.getCommentsByPost(postId);
+    public void getCommentsByPostAsync(int postId, CommentsCallback cb) {
+        executor.execute(() -> {
+            List<Comment> list = dao.getCommentsByPost(postId);
+            if (cb != null) cb.onResult(list);
+        });
     }
 }
