@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-
     <!-- Required permissions -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -17,28 +16,30 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.GalleryCart"
         android:usesCleartextTraffic="false">
-
-        <!-- Activities remain the same -->
+        <activity
+            android:name=".CommissionDetailActivity"
+            android:exported="false" />
+        <activity
+            android:name=".CommissionFormActivity"
+            android:exported="false" /> <!-- Activities remain the same -->
         <activity
             android:name=".LoginActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".RegisterActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
-
         <activity
             android:name=".EmailVerificationActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
-
         <activity
             android:name=".MainActivity"
             android:exported="false" />
@@ -48,15 +49,12 @@
         <activity
             android:name=".CommissionRequestActivity"
             android:exported="false" />
-
         <activity
             android:name=".CommissionRequestActivity"
             android:exported="false" />
-
         <activity
             android:name=".AllCommissionsActivity"
             android:exported="false" />
-
     </application>
 
 </manifest>

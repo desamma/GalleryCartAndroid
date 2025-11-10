@@ -63,7 +63,7 @@ public class AllArtistsActivity extends AppCompatActivity {
             @Override
             public void onRequestCommission(User artist) {
                 if (artist.getCommissionStatus() == 1) {
-                    Intent intent = new Intent(AllArtistsActivity.this, CommissionRequestActivity.class);
+                    Intent intent = new Intent(AllArtistsActivity.this, CommissionFormActivity.class);
                     intent.putExtra("ARTIST_ID", artist.getId());
                     intent.putExtra("ARTIST_NAME", artist.getUsername());
                     intent.putExtra("ARTIST_DESCRIPTION", artist.getProfessionSummary());

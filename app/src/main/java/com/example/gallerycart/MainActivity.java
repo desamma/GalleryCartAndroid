@@ -50,7 +50,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_all_artists) {
-            Intent intent = new Intent(this, AllArtistsActivity.class);
+            Intent intent = new Intent(this, AllCommissionsActivity.class);
+            intent.putExtra("IS_ARTIST_VIEW", false); // or true if user is artist
             startActivity(intent);
             return true;
         }
