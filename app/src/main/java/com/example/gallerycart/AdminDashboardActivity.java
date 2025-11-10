@@ -14,7 +14,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.gallerycart.adapter.CartAdapter;
 import com.example.gallerycart.adapter.SoldGroupedAdapter;
 import com.example.gallerycart.data.entity.Cart;
 import com.example.gallerycart.data.model.CartItemWithPost;
@@ -167,7 +166,6 @@ public class AdminDashboardActivity extends AppCompatActivity {
                 toDate.get(Calendar.DAY_OF_MONTH)
         );
 
-        // Optional: Max date = today
         datePickerDialog.getDatePicker().setMaxDate(Calendar.getInstance().getTimeInMillis());
 
         datePickerDialog.show();
@@ -191,17 +189,26 @@ public class AdminDashboardActivity extends AppCompatActivity {
         }
 
         try {
-            long fromMillis = dateFormat.parse(fromStr).getTime();
-            long toMillis = dateFormat.parse(toStr).getTime();
+            Date fromDateObj = dateFormat.parse(fromStr);
+            long fromMillis = fromDateObj.getTime();
+
+            Date toDateObj = dateFormat.parse(toStr);
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(toDateObj);
+            calendar.set(Calendar.HOUR_OF_DAY, 23);
+            calendar.set(Calendar.MINUTE, 59);
+            calendar.set(Calendar.SECOND, 59);
+            calendar.set(Calendar.MILLISECOND, 999);
+            long toMillis = calendar.getTimeInMillis();
 
             if (fromMillis > toMillis) {
-                Toast.makeText(this, "'From' date cannot be after 'To' date", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "\'From\' date cannot be after \'To\' date", Toast.LENGTH_SHORT).show();
                 return;
             }
 
             loadRange(fromMillis, toMillis);
 
-        } catch (Exception e) {
+        } catch (ParseException e) {
             e.printStackTrace();
             Toast.makeText(this, "Invalid date format", Toast.LENGTH_SHORT).show();
         }
