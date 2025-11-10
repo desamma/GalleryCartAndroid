@@ -71,6 +71,9 @@
         <activity
             android:name=".ViewWorkActivity"
             android:exported="false" />
+        <activity
+            android:name=".AdminUserActivity"
+            android:exported="false" />
 
     </application>
 
