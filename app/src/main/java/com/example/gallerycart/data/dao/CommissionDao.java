@@ -21,7 +21,7 @@ public interface CommissionDao {
     void delete(Commission commission);
 
     @Query("SELECT * FROM commissions WHERE id = :id")
-    Commission getCommissionById(int id);
+    LiveData<Commission> getCommissionById(int id);
 
     @Query("SELECT * FROM commissions WHERE clientId = :clientId ORDER BY createdAt DESC")
     LiveData<List<Commission>> getCommissionsByClientId(int clientId);

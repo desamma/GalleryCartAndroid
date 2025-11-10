@@ -70,20 +70,17 @@ public class CommissionDetailActivity extends AppCompatActivity {
             return;
         }
 
-        new Thread(() -> {
-            currentCommission = commissionViewModel.getCommissionById(commissionId);
-            if (currentCommission != null) {
+        commissionViewModel.getCommissionById(commissionId).observe(this, commission -> {
+            if (commission != null) {
+                currentCommission = commission;
                 int currentUserId = sessionManager.getUserId();
                 isArtistView = currentCommission.getArtistId() == currentUserId;
-
-                runOnUiThread(() -> displayCommissionData());
+                displayCommissionData();
             } else {
-                runOnUiThread(() -> {
-                    Toast.makeText(this, "Commission not found", Toast.LENGTH_SHORT).show();
-                    finish();
-                });
+                Toast.makeText(this, "Commission not found", Toast.LENGTH_SHORT).show();
+                finish();
             }
-        }).start();
+        });
     }
 
     private void displayCommissionData() {
@@ -217,7 +214,7 @@ public class CommissionDetailActivity extends AppCompatActivity {
             if (result != null) {
                 Toast.makeText(this, result.message, Toast.LENGTH_SHORT).show();
                 if (result.success) {
-                    loadCommissionData();
+                    // No need to call loadCommissionData() here, LiveData will update automatically
                 }
             }
         });

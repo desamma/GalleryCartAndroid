@@ -162,7 +162,7 @@ public class CommissionRepository {
         });
     }
 
-    public Commission getCommissionById(int id) {
+    public LiveData<Commission> getCommissionById(int id) {
         return commissionDao.getCommissionById(id);
     }
 

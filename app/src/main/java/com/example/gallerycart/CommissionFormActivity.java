@@ -33,6 +33,7 @@ public class CommissionFormActivity extends AppCompatActivity {
     private SessionManager sessionManager;
     private Calendar selectedDeadline;
     private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault());
+    private Commission currentCommission;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,20 +86,17 @@ public class CommissionFormActivity extends AppCompatActivity {
     }
 
     private void loadCommissionData() {
-        // Load commission data in background
-        new Thread(() -> {
-            Commission commission = commissionViewModel.getCommissionById(commissionId);
+        commissionViewModel.getCommissionById(commissionId).observe(this, commission -> {
             if (commission != null) {
-                runOnUiThread(() -> {
-                    etDescription.setText(commission.getDescription());
-                    etPrice.setText(String.valueOf(commission.getPrice()));
-                    if (commission.getDeadline() != null) {
-                        selectedDeadline.setTime(commission.getDeadline());
-                        etDeadline.setText(dateFormat.format(commission.getDeadline()));
-                    }
-                });
+                currentCommission = commission;
+                etDescription.setText(commission.getDescription());
+                etPrice.setText(String.valueOf(commission.getPrice()));
+                if (commission.getDeadline() != null) {
+                    selectedDeadline.setTime(commission.getDeadline());
+                    etDeadline.setText(dateFormat.format(commission.getDeadline()));
+                }
             }
-        }).start();
+        });
     }
 
     private void setupListeners() {
@@ -190,16 +188,12 @@ public class CommissionFormActivity extends AppCompatActivity {
         int clientId = sessionManager.getUserId();
 
         if (isEditMode) {
-            // Update existing commission
-            new Thread(() -> {
-                Commission commission = commissionViewModel.getCommissionById(commissionId);
-                if (commission != null) {
-                    commission.setDescription(description);
-                    commission.setPrice(price);
-                    commission.setDeadline(selectedDeadline.getTime());
-                    commissionViewModel.update(commission);
-                }
-            }).start();
+            if (currentCommission != null) {
+                currentCommission.setDescription(description);
+                currentCommission.setPrice(price);
+                currentCommission.setDeadline(selectedDeadline.getTime());
+                commissionViewModel.update(currentCommission);
+            }
         } else {
             // Create new commission
             Commission commission = new Commission();

@@ -36,6 +36,10 @@ public class CommissionViewModel extends AndroidViewModel {
         return operationResult;
     }
 
+    public LiveData<Commission> getCommissionById(int commissionId) {
+        return repository.getCommissionById(commissionId);
+    }
+
     public void insert(Commission commission) {
         repository.insert(commission, new CommissionRepository.OnCompleteListener() {
             @Override
