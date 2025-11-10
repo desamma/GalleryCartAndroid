@@ -98,11 +98,17 @@ public class AuthViewModel extends AndroidViewModel {
                     authResult.postValue(new AuthResult(false, "Email already exists", null));
                     return;
                 }
+                String role = "";
+                if (data.isArtist){
+                    role = "artist";
+                } else {
+                    role = "customer";
+                }
 
                 long userId = userRepository.createUser(
                         data.username,
                         data.email,
-                        "customer",
+                        role,
                         data.password,
                         data.dateOfBirth
                 );

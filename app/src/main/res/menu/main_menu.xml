@@ -25,6 +25,12 @@
         android:id="@+id/action_artist_commissions"
         android:title="Artist Commissions"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/action_favourites"
+        android:title="Favourites"
+        app:showAsAction="never"
+         />
+</menu>
 
     <item
         android:id="@+id/action_cart"

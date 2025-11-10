@@ -11,7 +11,6 @@
         android:layout_height="wrap_content"
         android:padding="32dp">
 
-        <!-- Logo/Title -->
         <TextView
             android:id="@+id/tvAppTitle"
             android:layout_width="wrap_content"
@@ -39,7 +38,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- Username -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilUsername"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -64,7 +62,6 @@
                 android:maxLines="1" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Email -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilEmail"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -89,7 +86,6 @@
                 android:maxLines="1" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Password -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilPassword"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -115,7 +111,6 @@
                 android:maxLines="1" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Confirm Password -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilConfirmPassword"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -141,7 +136,6 @@
                 android:maxLines="1" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Date of Birth -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilDateOfBirth"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -168,7 +162,6 @@
                 android:maxLines="1" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Artist Toggle -->
         <com.google.android.material.switchmaterial.SwitchMaterial
             android:id="@+id/switchIsArtist"
             android:layout_width="0dp"
@@ -181,7 +174,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- Artist Fields Container -->
         <LinearLayout
             android:id="@+id/layoutArtistFields"
             android:layout_width="0dp"
@@ -192,7 +184,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
 
-            <!-- Profession Summary -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilProfessionSummary"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -214,7 +205,6 @@
                     android:minLines="2" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Skills -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilSkills"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -235,7 +225,6 @@
                     android:maxLines="2" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Software -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilSoftware"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"

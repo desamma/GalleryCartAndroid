@@ -113,6 +113,8 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(this, PostEditActivity.class);
             startActivity(intent);
             return true;
+        }else if (id == R.id.action_favourites) {
+            Intent intent = new Intent(this, FavouritesActivity.class);
         } else if (id == R.id.action_my_commissions) {
             Intent intent = new Intent(this, AllCommissionsActivity.class);
             intent.putExtra("IS_ARTIST_VIEW", false);
@@ -132,6 +134,7 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
             return true;
         }
+
 
         return super.onOptionsItemSelected(item);
     }

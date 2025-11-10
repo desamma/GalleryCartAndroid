@@ -88,12 +88,12 @@ public class AdminDashboardActivity extends AppCompatActivity {
         etFromDate.setOnClickListener(v -> showDateFromPicker());
         etToDate.setOnClickListener(v -> showDateToPicker());
 
-        /*btnManageUsers.setOnClickListener(v -> {
+        btnManageUsers.setOnClickListener(v -> {
             Intent intent = new Intent(this, AdminUserActivity.class);
             startActivity(intent);
         });
 
-        btnManagePosts.setOnClickListener(v -> {
+        /*btnManagePosts.setOnClickListener(v -> {
             Intent intent = new Intent(this, AdminPostActivity.class);
             startActivity(intent);
         });*/

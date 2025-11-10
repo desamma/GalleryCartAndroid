@@ -77,6 +77,9 @@
         <activity
             android:name=".CartActivity"
             android:exported="false" />
+            android:name=".AdminUserActivity"
+            android:exported="false" />
+
     </application>
 
 </manifest>
