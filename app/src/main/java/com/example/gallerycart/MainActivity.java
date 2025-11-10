@@ -163,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
             UserRepository userRepository = new UserRepository(getApplicationContext());
             User user = userRepository.getUserById(userId);
             if (user != null) {
-                boolean artist = "artist".equalsIgnoreCase(user.get_role()) || user.isArtist();
+                boolean artist = "artist".equalsIgnoreCase(user.getRole()) || user.isArtist();
                 runOnUiThread(() -> {
                     isArtist = artist;
                     invalidateOptionsMenu();
@@ -216,7 +216,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void navigateToLogin() {
         Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-        intent.setFlags(Intent.FLAG_.ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
     }
