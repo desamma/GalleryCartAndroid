@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.gallerycart.adapter.CartAdapter;
 import com.example.gallerycart.adapter.SoldGroupedAdapter;
 import com.example.gallerycart.data.entity.Cart;
 import com.example.gallerycart.data.model.CartItemWithPost;
@@ -166,7 +167,9 @@ public class AdminDashboardActivity extends AppCompatActivity {
                 toDate.get(Calendar.DAY_OF_MONTH)
         );
 
-        datePickerDialog.getDatePicker().setMaxDate(Calendar.getInstance().getTimeInMillis());
+        Calendar maxDate = Calendar.getInstance();
+        maxDate.add(Calendar.YEAR, -0);
+        datePickerDialog.getDatePicker().setMaxDate(maxDate.getTimeInMillis());
 
         datePickerDialog.show();
     }
