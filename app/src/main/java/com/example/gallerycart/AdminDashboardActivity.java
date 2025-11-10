@@ -161,8 +161,9 @@ public class AdminDashboardActivity extends AppCompatActivity {
                 toDate.get(Calendar.DAY_OF_MONTH)
         );
 
-        // Optional: Max date = today
-        datePickerDialog.getDatePicker().setMaxDate(Calendar.getInstance().getTimeInMillis());
+        Calendar maxDate = Calendar.getInstance();
+        maxDate.add(Calendar.YEAR, -0);
+        datePickerDialog.getDatePicker().setMaxDate(maxDate.getTimeInMillis());
 
         datePickerDialog.show();
     }
