@@ -59,4 +59,14 @@ public interface CartDao {
 
     @Query("DELETE FROM cart WHERE id = :cartId")
     void deleteCart(int cartId);
+
+    @Query("SELECT SUM(totalPrice) FROM cart WHERE purchaseDate IS NOT NULL AND purchaseDate BETWEEN :from AND :to")
+    Double sumRevenueBetween(long from, long to);
+
+    @Query("SELECT ci.*, p.title AS title, p.imagePath AS imagePath, p.price AS price " +
+            "FROM cart_item ci " +
+            "INNER JOIN cart c ON ci.cartId = c.id " +
+            "INNER JOIN post p ON ci.postId = p.id " +
+            "WHERE c.purchaseDate BETWEEN :from AND :to")
+    List<CartItemWithPost> getSoldItemsBetween(long from, long to);
 }

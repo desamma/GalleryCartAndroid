@@ -12,6 +12,8 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 import com.example.gallerycart.data.dao.*;
 import com.example.gallerycart.data.entity.*;
 
+import java.util.concurrent.Executors;
+
 @Database(entities = {
         User.class,
         Post.class,
@@ -50,7 +52,6 @@ public abstract class AppDatabase extends RoomDatabase {
                                     context.getApplicationContext(),
                                     AppDatabase.class,
                                     "gallery_cart_database")
-                            .fallbackToDestructiveMigration()
                             .addCallback(roomCallback)
                             .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
                             .build();
@@ -170,7 +171,7 @@ public abstract class AppDatabase extends RoomDatabase {
         }
     };
 
-    static final Migration MIGRATION_4_5 = new Migration(3, 4) {
+    static final Migration MIGRATION_4_5 = new Migration(4, 5) {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
             database.execSQL("CREATE TABLE `payos_payment` (" +
@@ -213,7 +214,7 @@ public abstract class AppDatabase extends RoomDatabase {
         }
     };
 
-    static final Migration MIGRATION_5_6= new Migration(4, 5) {
+    static final Migration MIGRATION_5_6= new Migration(5, 6) {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
             database.execSQL("DROP TABLE IF EXISTS payos_payment");

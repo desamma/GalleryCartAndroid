@@ -109,7 +109,6 @@ public class CartRepository {
             long nowMillis = new Date().getTime();
             cartDao.setPurchaseDate(cart.getId(), nowMillis);
 
-            // Create a new active cart for the user
             Cart newCart = new Cart();
             newCart.setUserId(userId);
             newCart.setTotalPrice(0.0);
@@ -128,13 +127,12 @@ public class CartRepository {
         updateCartTotal(cartId);
     }
 
-    // Revenue calculations
- /*   public double getRevenueBetween(long fromMillis, long toMillis) {
+    public double getRevenueBetween(long fromMillis, long toMillis) {
         Double res = cartDao.sumRevenueBetween(fromMillis, toMillis);
         return res == null ? 0.0 : res;
     }
 
     public List<CartItemWithPost> getSoldItemsBetween(long fromMillis, long toMillis) {
         return cartDao.getSoldItemsBetween(fromMillis, toMillis);
-    }*/
+    }
 }
