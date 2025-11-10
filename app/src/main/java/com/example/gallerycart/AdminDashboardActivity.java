@@ -40,7 +40,7 @@ public class AdminDashboardActivity extends AppCompatActivity {
 
     private TextView tvTotalUsers, tvTotalPosts, tvRevenue;
     private EditText etFromDate, etToDate;
-    private Button btnCheckRevenue, btnManageUsers, btnManagePosts, btnLogout;
+    private Button btnCheckRevenue, btnManageUsers, btnManagePosts, btnManageCommissions, btnLogout;
 
     private UserRepository userRepository;
     private PostRepository postRepository;
@@ -68,6 +68,7 @@ public class AdminDashboardActivity extends AppCompatActivity {
         rvSoldCarts = findViewById(R.id.rvSoldCarts);
         btnManageUsers = findViewById(R.id.btnManageUsers);
         btnManagePosts = findViewById(R.id.btnManagePosts);
+        btnManageCommissions = findViewById(R.id.btnManageCommissions);
         btnLogout = findViewById(R.id.btnLogout);
 
 
@@ -90,6 +91,11 @@ public class AdminDashboardActivity extends AppCompatActivity {
 
         btnManageUsers.setOnClickListener(v -> {
             Intent intent = new Intent(this, AdminUserActivity.class);
+            startActivity(intent);
+        });
+
+        btnManageCommissions.setOnClickListener(v -> {
+            Intent intent = new Intent(this, AdminCommissionActivity.class);
             startActivity(intent);
         });
 

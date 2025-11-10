@@ -20,6 +20,9 @@ public interface CommissionDao {
     @Delete
     void delete(Commission commission);
 
+    @Query("SELECT * FROM commissions ORDER BY createdAt DESC")
+    List<Commission> getAllCommissions();
+
     @Query("SELECT * FROM commissions WHERE id = :id")
     LiveData<Commission> getCommissionById(int id);
 
