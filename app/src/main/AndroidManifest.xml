@@ -17,6 +17,9 @@
         android:theme="@style/Theme.GalleryCart"
         android:usesCleartextTraffic="false">
         <activity
+            android:name=".UserProfileActivity"
+            android:exported="false" />
+        <activity
             android:name=".CommissionDetailActivity"
             android:exported="false" />
         <activity
@@ -71,7 +74,9 @@
         <activity
             android:name=".ViewWorkActivity"
             android:exported="false" />
-
+        <activity
+            android:name=".CartActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
