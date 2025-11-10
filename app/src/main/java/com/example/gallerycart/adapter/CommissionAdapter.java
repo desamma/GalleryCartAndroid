@@ -6,49 +6,182 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.gallerycart.R;
 import com.example.gallerycart.data.entity.Commission;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class CommissionAdapter extends RecyclerView.Adapter<CommissionAdapter.CommissionViewHolder> {
 
     private Context context;
     private List<Commission> commissions;
+    private OnCommissionActionListener listener;
+    private boolean isArtistView;
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault());
 
-    public CommissionAdapter(Context context) {
+    public interface OnCommissionActionListener {
+        void onViewDetails(Commission commission);
+        void onEdit(Commission commission);
+        void onDelete(Commission commission);
+        void onAccept(Commission commission);
+        void onReject(Commission commission);
+        void onStart(Commission commission);
+        void onComplete(Commission commission);
+        void onCancel(Commission commission);
+        void onOpenWorkLink(Commission commission);
+    }
+
+    public CommissionAdapter(Context context, boolean isArtistView) {
         this.context = context;
+        this.isArtistView = isArtistView;
+        this.commissions = new ArrayList<>();
+    }
+
+    public void setOnCommissionActionListener(OnCommissionActionListener listener) {
+        this.listener = listener;
     }
 
     public void setCommissions(List<Commission> commissions) {
-        this.commissions = commissions;
+        this.commissions = commissions != null ? commissions : new ArrayList<>();
         notifyDataSetChanged();
     }
 
     @NonNull
     @Override
     public CommissionViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.commission_item, parent, false);
+        View view = LayoutInflater.from(context).inflate(
+                isArtistView ? R.layout.commission_item_artist : R.layout.commission_item_client,
+                parent,
+                false
+        );
         return new CommissionViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull CommissionViewHolder holder, int position) {
         Commission commission = commissions.get(position);
-        holder.tvDescription.setText(commission.getDescription());
-        holder.tvStatus.setText(commission.getStatus());
-        holder.tvPrice.setText(String.format("%.2f VND", commission.getPrice()));
 
-        if (commission.getFilePath() != null && !commission.getFilePath().isEmpty()) {
-            holder.btnDownload.setVisibility(View.VISIBLE);
-            holder.btnDownload.setOnClickListener(v -> {
-                // TODO: Implement download logic
-                Toast.makeText(context, "Downloading file...", Toast.LENGTH_SHORT).show();
-            });
+        holder.tvDescription.setText(commission.getDescription());
+        holder.tvPrice.setText(String.format(Locale.getDefault(), "%.2f VND", commission.getPrice()));
+        holder.tvStatus.setText(commission.getStatus());
+
+        // Set status background color
+        holder.tvStatus.setBackgroundColor(getStatusColor(commission.getStatus()));
+
+        if (commission.getDeadline() != null) {
+            holder.tvDeadline.setText("Deadline: " + dateFormat.format(commission.getDeadline()));
+            holder.tvDeadline.setVisibility(View.VISIBLE);
         } else {
-            holder.btnDownload.setVisibility(View.GONE);
+            holder.tvDeadline.setVisibility(View.GONE);
+        }
+
+        if (commission.getCreatedAt() != null) {
+            holder.tvCreatedAt.setText("Created: " + dateFormat.format(commission.getCreatedAt()));
+        }
+
+        // Handle work link visibility
+        if (commission.getWorkLink() != null && !commission.getWorkLink().isEmpty()) {
+            if (holder.btnOpenWorkLink != null) {
+                holder.btnOpenWorkLink.setVisibility(View.VISIBLE);
+                holder.btnOpenWorkLink.setOnClickListener(v -> {
+                    if (listener != null) listener.onOpenWorkLink(commission);
+                });
+            }
+        } else {
+            if (holder.btnOpenWorkLink != null) {
+                holder.btnOpenWorkLink.setVisibility(View.GONE);
+            }
+        }
+
+        // Configure buttons based on status and user type
+        configureButtons(holder, commission);
+    }
+
+    private void configureButtons(CommissionViewHolder holder, Commission commission) {
+        String status = commission.getStatus();
+
+        if (isArtistView) {
+            // Artist view buttons
+            if (holder.btnAccept != null) {
+                holder.btnAccept.setVisibility(status.equals(Commission.STATUS_PENDING) ? View.VISIBLE : View.GONE);
+                holder.btnAccept.setOnClickListener(v -> {
+                    if (listener != null) listener.onAccept(commission);
+                });
+            }
+            if (holder.btnReject != null) {
+                holder.btnReject.setVisibility(status.equals(Commission.STATUS_PENDING) ? View.VISIBLE : View.GONE);
+                holder.btnReject.setOnClickListener(v -> {
+                    if (listener != null) listener.onReject(commission);
+                });
+            }
+            if (holder.btnStart != null) {
+                holder.btnStart.setVisibility(status.equals(Commission.STATUS_ACCEPTED) ? View.VISIBLE : View.GONE);
+                holder.btnStart.setOnClickListener(v -> {
+                    if (listener != null) listener.onStart(commission);
+                });
+            }
+            if (holder.btnComplete != null) {
+                holder.btnComplete.setVisibility(status.equals(Commission.STATUS_IN_PROGRESS) ? View.VISIBLE : View.GONE);
+                holder.btnComplete.setOnClickListener(v -> {
+                    if (listener != null) listener.onComplete(commission);
+                });
+            }
+        } else {
+            // Client view buttons
+            if (holder.btnEdit != null) {
+                holder.btnEdit.setVisibility(status.equals(Commission.STATUS_PENDING) ? View.VISIBLE : View.GONE);
+                holder.btnEdit.setOnClickListener(v -> {
+                    if (listener != null) listener.onEdit(commission);
+                });
+            }
+            if (holder.btnDelete != null) {
+                holder.btnDelete.setVisibility(
+                        status.equals(Commission.STATUS_PENDING) || status.equals(Commission.STATUS_REJECTED)
+                                ? View.VISIBLE : View.GONE
+                );
+                holder.btnDelete.setOnClickListener(v -> {
+                    if (listener != null) listener.onDelete(commission);
+                });
+            }
+            if (holder.btnCancel != null) {
+                holder.btnCancel.setVisibility(
+                        status.equals(Commission.STATUS_ACCEPTED) || status.equals(Commission.STATUS_IN_PROGRESS)
+                                ? View.VISIBLE : View.GONE
+                );
+                holder.btnCancel.setOnClickListener(v -> {
+                    if (listener != null) listener.onCancel(commission);
+                });
+            }
+        }
+
+        // View details button for both
+        if (holder.btnViewDetails != null) {
+            holder.btnViewDetails.setOnClickListener(v -> {
+                if (listener != null) listener.onViewDetails(commission);
+            });
+        }
+    }
+
+    private int getStatusColor(String status) {
+        switch (status) {
+            case Commission.STATUS_PENDING:
+                return 0xFFFFA500; // Orange
+            case Commission.STATUS_ACCEPTED:
+                return 0xFF2196F3; // Blue
+            case Commission.STATUS_REJECTED:
+                return 0xFFF44336; // Red
+            case Commission.STATUS_IN_PROGRESS:
+                return 0xFF9C27B0; // Purple
+            case Commission.STATUS_COMPLETED:
+                return 0xFF4CAF50; // Green
+            case Commission.STATUS_CANCELLED:
+                return 0xFF757575; // Gray
+            default:
+                return 0xFF9E9E9E;
         }
     }
 
@@ -58,15 +191,29 @@ public class CommissionAdapter extends RecyclerView.Adapter<CommissionAdapter.Co
     }
 
     public static class CommissionViewHolder extends RecyclerView.ViewHolder {
-        TextView tvDescription, tvStatus, tvPrice;
-        Button btnDownload;
+        TextView tvDescription, tvStatus, tvPrice, tvDeadline, tvCreatedAt;
+        Button btnViewDetails, btnEdit, btnDelete, btnAccept, btnReject, btnStart, btnComplete, btnCancel, btnOpenWorkLink;
 
         public CommissionViewHolder(@NonNull View itemView) {
             super(itemView);
             tvDescription = itemView.findViewById(R.id.tvDescription);
             tvStatus = itemView.findViewById(R.id.tvStatus);
             tvPrice = itemView.findViewById(R.id.tvPrice);
-            btnDownload = itemView.findViewById(R.id.btnDownload);
+            tvDeadline = itemView.findViewById(R.id.tvDeadline);
+            tvCreatedAt = itemView.findViewById(R.id.tvCreatedAt);
+            btnViewDetails = itemView.findViewById(R.id.btnViewDetails);
+            btnOpenWorkLink = itemView.findViewById(R.id.btnOpenWorkLink);
+
+            // Client view buttons
+            btnEdit = itemView.findViewById(R.id.btnEdit);
+            btnDelete = itemView.findViewById(R.id.btnDelete);
+            btnCancel = itemView.findViewById(R.id.btnCancel);
+
+            // Artist view buttons
+            btnAccept = itemView.findViewById(R.id.btnAccept);
+            btnReject = itemView.findViewById(R.id.btnReject);
+            btnStart = itemView.findViewById(R.id.btnStart);
+            btnComplete = itemView.findViewById(R.id.btnComplete);
         }
     }
 }

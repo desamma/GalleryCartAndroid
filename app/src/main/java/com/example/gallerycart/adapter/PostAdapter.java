@@ -59,7 +59,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             holder.tvPostPrice.setText(format.format(price));
         }
 
-        holder.tvPostLikes.setText(post.getLikeCount() + " likes");
+        holder.tvPostLikes.setText(post.getSaleCount() + " sold");
 
         boolean isMature = post.isMature();
         if (isMature) {

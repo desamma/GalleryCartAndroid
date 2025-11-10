@@ -1,23 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <!-- Về HomePage (MainActivity) -->
     <item
         android:id="@+id/action_home"
         android:title="Home"
-        app:showAsAction="never" />
+        app:showAsAction="ifRoom" />
 
-    <!-- Xem tất cả artists (code cũ) -->
     <item
         android:id="@+id/action_all_artists"
-        android:title="@string/all_artists"
+        android:title="All Artists"
         app:showAsAction="never" />
 
-    <!-- Chỉ artist mới được thấy, sẽ set visible trong code -->
     <item
         android:id="@+id/action_create_post"
-        android:title="Create post"
-        android:visible="false"
+        android:title="Create Post"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_my_commissions"
+        android:title="My Commissions"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_artist_commissions"
+        android:title="Artist Commissions"
         app:showAsAction="never" />
 
 </menu>

@@ -85,7 +85,7 @@ public class PostDetailActivity extends AppCompatActivity {
     private void bindData() {
         tvTitle.setText(currentPost.getTitle());
         tvDescription.setText(currentPost.getDescription() != null ? currentPost.getDescription() : "");
-        tvLikes.setText(currentPost.getLikeCount() + " likes");
+        tvLikes.setText(currentPost.getSaleCount() + " sold");
 
         double price = currentPost.getPrice();
         if (price <= 0) tvPrice.setText("Free");
