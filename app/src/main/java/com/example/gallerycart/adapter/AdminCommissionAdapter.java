@@ -31,7 +31,7 @@ public class AdminCommissionAdapter extends RecyclerView.Adapter<AdminCommission
     @Override
     public void onBindViewHolder(@NonNull CommissionViewHolder holder, int position) {
         Commission commission = commissions.get(position);
-        holder.commissionId.setText("Commission ID: #" + commission.getCommissionId());
+        holder.commissionId.setText("Commission ID: #" + commission.getId());
         holder.clientName.setText("Client ID: " + commission.getClientId());
         holder.artistName.setText("Artist ID: " + commission.getArtistId());
         holder.commissionStatus.setText("Status: " + commission.getStatus());
