@@ -75,6 +75,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.VH> {
             super(v);
             image = v.findViewById(R.id.cart_item_image);
             title = v.findViewById(R.id.cart_item_title);
+            qty = v.findViewById(R.id.cart_item_qty);
             price = v.findViewById(R.id.cart_item_price);
             btnRemove = v.findViewById(R.id.btn_remove);
         }
