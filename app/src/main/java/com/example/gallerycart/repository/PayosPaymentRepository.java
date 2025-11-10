@@ -19,6 +19,7 @@ public class PayosPaymentRepository {
 
     private final PayosPaymentDao payosPaymentDao;
     private final CartDao cartDao;
+    private final CartRepository cartRepository;
     private final ExecutorService executorService;
     private final Gson gson;
 
@@ -26,6 +27,7 @@ public class PayosPaymentRepository {
         AppDatabase database = AppDatabase.getInstance(context);
         payosPaymentDao = database.payosPaymentDao();
         cartDao = database.cartDao();
+        cartRepository = new CartRepository(context);
         executorService = Executors.newSingleThreadExecutor();
         gson = new Gson();
     }
@@ -134,6 +136,10 @@ public class PayosPaymentRepository {
 
                 String newStatus = remaining <= 0 ? "PAID" : "UNDERPAID";
                 payosPaymentDao.updatePaymentStatus(paymentId, newStatus, totalPaid, remaining);
+
+                if (newStatus.equals("PAID")) {
+                    cartRepository.finalizePurchase(payment.getCartId());
+                }
 
                 PayosPayment updatedPayment = payosPaymentDao.getPaymentById(paymentId);
                 if (callback != null) {

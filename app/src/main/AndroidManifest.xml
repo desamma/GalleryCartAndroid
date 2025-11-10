@@ -77,7 +77,11 @@
         <activity
             android:name=".CartActivity"
             android:exported="false" />
+        <activity
             android:name=".AdminUserActivity"
+            android:exported="false" />
+        <activity
+            android:name=".AdminCommissionActivity"
             android:exported="false" />
 
     </application>

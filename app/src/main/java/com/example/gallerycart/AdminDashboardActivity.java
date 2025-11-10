@@ -40,7 +40,7 @@ public class AdminDashboardActivity extends AppCompatActivity {
 
     private TextView tvTotalUsers, tvTotalPosts, tvRevenue;
     private EditText etFromDate, etToDate;
-    private Button btnCheckRevenue, btnManageUsers, btnManagePosts, btnLogout;
+    private Button btnCheckRevenue, btnManageUsers, btnManagePosts, btnManageCommissions, btnLogout;
 
     private UserRepository userRepository;
     private PostRepository postRepository;
@@ -68,6 +68,7 @@ public class AdminDashboardActivity extends AppCompatActivity {
         rvSoldCarts = findViewById(R.id.rvSoldCarts);
         btnManageUsers = findViewById(R.id.btnManageUsers);
         btnManagePosts = findViewById(R.id.btnManagePosts);
+        btnManageCommissions = findViewById(R.id.btnManageCommissions);
         btnLogout = findViewById(R.id.btnLogout);
 
 
@@ -93,10 +94,15 @@ public class AdminDashboardActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        btnManagePosts.setOnClickListener(v -> {
-            Intent intent = new Intent(this, AdminPostActivity.class);
+        btnManageCommissions.setOnClickListener(v -> {
+            Intent intent = new Intent(this, AdminCommissionActivity.class);
             startActivity(intent);
         });
+
+        /*btnManagePosts.setOnClickListener(v -> {
+            Intent intent = new Intent(this, AdminPostActivity.class);
+            startActivity(intent);
+        });*/
 
         btnLogout.setOnClickListener(v -> showLogoutDialog());
 
@@ -186,17 +192,26 @@ public class AdminDashboardActivity extends AppCompatActivity {
         }
 
         try {
-            long fromMillis = dateFormat.parse(fromStr).getTime();
-            long toMillis = dateFormat.parse(toStr).getTime();
+            Date fromDateObj = dateFormat.parse(fromStr);
+            long fromMillis = fromDateObj.getTime();
+
+            Date toDateObj = dateFormat.parse(toStr);
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(toDateObj);
+            calendar.set(Calendar.HOUR_OF_DAY, 23);
+            calendar.set(Calendar.MINUTE, 59);
+            calendar.set(Calendar.SECOND, 59);
+            calendar.set(Calendar.MILLISECOND, 999);
+            long toMillis = calendar.getTimeInMillis();
 
             if (fromMillis > toMillis) {
-                Toast.makeText(this, "'From' date cannot be after 'To' date", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "\'From\' date cannot be after \'To\' date", Toast.LENGTH_SHORT).show();
                 return;
             }
 
             loadRange(fromMillis, toMillis);
 
-        } catch (Exception e) {
+        } catch (ParseException e) {
             e.printStackTrace();
             Toast.makeText(this, "Invalid date format", Toast.LENGTH_SHORT).show();
         }
