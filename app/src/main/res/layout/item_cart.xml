@@ -40,6 +40,15 @@
                 android:ellipsize="end"/>
 
             <TextView
+                android:id="@+id/cart_item_qty"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Qty: 1"
+                android:textSize="14sp"
+                android:layout_marginTop="4dp"
+                android:textColor="#333"/>
+
+            <TextView
                 android:id="@+id/cart_item_price"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
