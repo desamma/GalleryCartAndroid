@@ -19,5 +19,9 @@
         android:title="Create post"
         android:visible="false"
         app:showAsAction="never" />
-
+    <item
+        android:id="@+id/action_favourites"
+        android:title="Favourites"
+        app:showAsAction="never"
+         />
 </menu>

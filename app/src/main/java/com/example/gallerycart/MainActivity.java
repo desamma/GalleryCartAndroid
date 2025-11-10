@@ -103,7 +103,12 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(this, PostEditActivity.class);
             startActivity(intent);
             return true;
+        }else if (id == R.id.action_favourites) {
+            Intent intent = new Intent(this, FavouritesActivity.class);
+            startActivity(intent);
+            return true;
         }
+
 
         return super.onOptionsItemSelected(item);
     }
