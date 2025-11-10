@@ -39,7 +39,7 @@ public class UserProfileActivity extends AppCompatActivity {
     private EditText etPhoneNumber, etProfessionSummary, etSkills, etSoftware, etContactInfo;
     private SwitchMaterial switchCommissionStatus;
     private MaterialButton btnSelectAvatar, btnSaveProfile;
-    private Button btnChangePassword;
+    private Button btnChangePassword, btnMyPurchases;
 
     private SessionManager sessionManager;
     private UserRepository userRepository;
@@ -90,6 +90,7 @@ public class UserProfileActivity extends AppCompatActivity {
         btnSelectAvatar = findViewById(R.id.btnSelectAvatar);
         btnSaveProfile = findViewById(R.id.btnSaveProfile);
         btnChangePassword = findViewById(R.id.btnChangePassword);
+        btnMyPurchases = findViewById(R.id.btnMyPurchases);
     }
 
     private void loadUserProfile() {
@@ -172,6 +173,10 @@ public class UserProfileActivity extends AppCompatActivity {
         btnChangePassword.setOnClickListener(v -> {
             // TODO: Implement change password functionality
             Toast.makeText(this, "Change password feature coming soon", Toast.LENGTH_SHORT).show();
+        });
+        btnMyPurchases.setOnClickListener(v -> {
+            Intent intent = new Intent(UserProfileActivity.this, MyPurchasesActivity.class);
+            startActivity(intent);
         });
     }
 

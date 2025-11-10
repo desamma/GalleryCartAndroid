@@ -167,6 +167,15 @@
                         android:text="Change Password"
                         android:textAllCaps="false" />
 
+                    <Button
+                        android:id="@+id/btnMyPurchases"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="My Purchases"
+                        android:textAllCaps="false" />
+
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 

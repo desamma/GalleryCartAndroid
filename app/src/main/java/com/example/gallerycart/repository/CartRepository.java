@@ -42,6 +42,10 @@ public class CartRepository {
         return cart;
     }
 
+    public List<CartItemWithPost> getPurchasedItems(int userId) {
+        return cartDao.getPurchasedItems(userId);
+    }
+
     public long addToCart(int userId, int postId, int quantity) {
         if (quantity <= 0) throw new IllegalArgumentException("Quantity must be > 0");
 

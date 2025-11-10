@@ -28,6 +28,13 @@ public interface CartDao {
             "ORDER BY purchaseDate DESC")
     List<Cart> getPurchasedCartsByUser(int userId);
 
+    @Query("SELECT ci.*, p.title, p.imagePath, p.price FROM cart_item ci " +
+            "INNER JOIN post p ON ci.postId = p.id " +
+            "INNER JOIN cart c ON ci.cartId = c.id " +
+            "WHERE c.userId = :userId AND c.purchaseDate IS NOT NULL " +
+            "ORDER BY c.purchaseDate DESC")
+    List<CartItemWithPost> getPurchasedItems(int userId);
+
     @Query("SELECT * FROM cart WHERE id = :cartId")
     Cart getCartById(int cartId);
 
