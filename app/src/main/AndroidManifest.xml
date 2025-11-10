@@ -17,8 +17,13 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.GalleryCart"
         android:usesCleartextTraffic="false">
+        <activity
+            android:name=".CommissionDetailActivity"
+            android:exported="false" />
+        <activity
+            android:name=".CommissionFormActivity"
+            android:exported="false" />
 
-        <!-- Activities remain the same -->
         <activity
             android:name=".LoginActivity"
             android:exported="true"
@@ -45,13 +50,6 @@
         <activity
             android:name=".AllArtistsActivity"
             android:exported="false" />
-        <activity
-            android:name=".CommissionRequestActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".CommissionRequestActivity"
-            android:exported="false" />
 
         <activity
             android:name=".AllCommissionsActivity"
@@ -66,6 +64,9 @@
 
         <activity
             android:name=".PostEditActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ViewWorkActivity"
             android:exported="false" />
 
     </application>

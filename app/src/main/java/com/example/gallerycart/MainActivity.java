@@ -6,7 +6,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.TextView;
-
+import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -81,9 +81,19 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         MenuItem createPostItem = menu.findItem(R.id.action_create_post);
+        MenuItem myCommissionsItem = menu.findItem(R.id.action_my_commissions);
+        MenuItem artistCommissionsItem = menu.findItem(R.id.action_artist_commissions);
+
         if (createPostItem != null) {
             createPostItem.setVisible(isArtist);
         }
+        if (myCommissionsItem != null) {
+            myCommissionsItem.setVisible(!isArtist);
+        }
+        if (artistCommissionsItem != null) {
+            artistCommissionsItem.setVisible(isArtist);
+        }
+
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -101,6 +111,16 @@ public class MainActivity extends AppCompatActivity {
             return true;
         } else if (id == R.id.action_create_post) {
             Intent intent = new Intent(this, PostEditActivity.class);
+            startActivity(intent);
+            return true;
+        } else if (id == R.id.action_my_commissions) {
+            Intent intent = new Intent(this, AllCommissionsActivity.class);
+            intent.putExtra("IS_ARTIST_VIEW", false);
+            startActivity(intent);
+            return true;
+        } else if (id == R.id.action_artist_commissions) {
+            Intent intent = new Intent(this, AllCommissionsActivity.class);
+            intent.putExtra("IS_ARTIST_VIEW", true);
             startActivity(intent);
             return true;
         }
