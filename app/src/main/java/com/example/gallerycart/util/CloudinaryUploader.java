@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -36,7 +37,11 @@ public class CloudinaryUploader {
     public CloudinaryUploader(String cloudName, String uploadPreset) {
         this.cloudName = cloudName;
         this.uploadPreset = uploadPreset;
-        this.client = new OkHttpClient();
+        this.client = new OkHttpClient.Builder()
+                .connectTimeout(30, TimeUnit.SECONDS)
+                .readTimeout(30, TimeUnit.SECONDS)
+                .writeTimeout(30, TimeUnit.SECONDS)
+                .build();
     }
 
     public void uploadUri(Context ctx, Uri uri, UploadCallback callback) {
