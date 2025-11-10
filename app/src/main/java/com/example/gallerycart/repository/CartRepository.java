@@ -7,7 +7,6 @@ import com.example.gallerycart.data.dao.CartItemDao;
 import com.example.gallerycart.data.dao.PostDao;
 import com.example.gallerycart.data.entity.Cart;
 import com.example.gallerycart.data.entity.CartItem;
-import com.example.gallerycart.data.entity.Post;
 import com.example.gallerycart.data.model.CartItemWithPost;
 import java.util.Date;
 import java.util.List;
@@ -25,32 +24,51 @@ public class CartRepository {
         postDao = database.postDao();
     }
 
-    /**
-     * Get or create cart for user
-     */
-    public Cart getOrCreateCart(int userId) {
-        Cart cart = cartDao.getCartByUser(userId);
+    public Cart getOrCreateActiveCart(int userId) {
+        Cart cart = cartDao.getActiveCartByUser(userId);
         if (cart == null) {
             cart = new Cart();
             cart.setUserId(userId);
             cart.setTotalPrice(0.0);
+            cart.setActive(true);
+            cart.setCreatedDate(new Date());
             long cartId = cartDao.insert(cart);
             cart.setId((int) cartId);
         }
         return cart;
     }
 
-    /**
-     * Add item to cart
-     */
+    public List<Cart> getAllCartsByUser(int userId) {
+        return cartDao.getAllCartsByUser(userId);
+    }
+
+    public List<Cart> getOrderHistory(int userId) {
+        return cartDao.getPurchasedCartsByUser(userId);
+    }
+
+    public Cart createNewCart(int userId) {
+        // Deactivate all existing active carts
+        cartDao.deactivateAllUserCarts(userId);
+
+        // Create new active cart
+        Cart cart = new Cart();
+        cart.setUserId(userId);
+        cart.setTotalPrice(0.0);
+        cart.setActive(true);
+        cart.setCreatedDate(new Date());
+        long cartId = cartDao.insert(cart);
+        cart.setId((int) cartId);
+
+        return cart;
+    }
+
     public long addToCart(int userId, int postId, int quantity) {
         if (quantity <= 0) {
             throw new IllegalArgumentException("Quantity must be greater than 0");
         }
 
-        Cart cart = getOrCreateCart(userId);
+        Cart cart = getOrCreateActiveCart(userId);
 
-        // Check if item already exists in cart
         CartItem existingItem = cartItemDao.getCartItem(cart.getId(), postId);
         if (existingItem != null) {
             existingItem.setQuantity(existingItem.getQuantity() + quantity);
@@ -68,20 +86,18 @@ public class CartRepository {
         }
     }
 
-    /**
-     * Get cart items with post details
-     */
     public List<CartItemWithPost> getCartItemsWithPosts(int userId) {
-        Cart cart = cartDao.getCartByUser(userId);
+        Cart cart = cartDao.getActiveCartByUser(userId);
         if (cart == null) {
             return null;
         }
         return cartItemDao.getCartItemsWithPosts(cart.getId());
     }
 
-    /**
-     * Update cart total price
-     */
+    public List<CartItemWithPost> getCartItemsById(int cartId) {
+        return cartItemDao.getCartItemsWithPosts(cartId);
+    }
+
     private void updateCartTotal(int cartId) {
         List<CartItemWithPost> items = cartItemDao.getCartItemsWithPosts(cartId);
         double total = 0.0;
@@ -91,13 +107,10 @@ public class CartRepository {
         cartDao.updateTotalPrice(cartId, total);
     }
 
-    /**
-     * Checkout cart
-     */
     public void checkoutCart(int userId) {
-        Cart cart = cartDao.getCartByUser(userId);
+        Cart cart = cartDao.getActiveCartByUser(userId);
         if (cart == null) {
-            throw new IllegalStateException("No cart found for user");
+            throw new IllegalStateException("No active cart found for user");
         }
 
         List<CartItemWithPost> items = cartItemDao.getCartItemsWithPosts(cart.getId());
@@ -105,12 +118,12 @@ public class CartRepository {
             throw new IllegalStateException("Cart is empty");
         }
 
-        // Update purchase date
         cartDao.setPurchaseDate(cart.getId(), new Date().getTime());
 
-        // Increment sale count for each post
         for (CartItemWithPost item : items) {
             postDao.incrementSaleCount(item.getCartItem().getPostId());
         }
+
+        createNewCart(userId);
     }
 }

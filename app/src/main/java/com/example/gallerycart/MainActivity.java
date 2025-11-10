@@ -10,14 +10,33 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.gallerycart.adapter.PostAdapter;
+import com.example.gallerycart.data.entity.Post;
+import com.example.gallerycart.data.entity.User;
+import com.example.gallerycart.repository.PostRepository;
+import com.example.gallerycart.repository.UserRepository;
 import com.example.gallerycart.util.SessionManager;
 import com.google.android.material.button.MaterialButton;
+
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
     private TextView tvUsername;
     private MaterialButton btnLogout;
+    private MaterialButton btnViewAllArt;
     private SessionManager sessionManager;
+
+    private RecyclerView rvFeaturedPosts;
+    private RecyclerView rvRandomPosts;
+    private PostAdapter featuredAdapter;
+    private PostAdapter randomAdapter;
+    private PostRepository postRepository;
+
+    private boolean isArtist = false; // để hiện/ẩn menu Create Post
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,16 +47,28 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         sessionManager = new SessionManager(this);
-
-        // Check if logged in
         if (!sessionManager.isLoggedIn()) {
             navigateToLogin();
             return;
         }
 
+        postRepository = new PostRepository(this);
+
         initViews();
+        setupRecyclerViews();
         loadUserData();
+        loadUserRole();
         setupListeners();
+        loadPostSections(); // lần đầu khi vừa mở app
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // 🔁 Mỗi lần quay lại Home (sau khi create/edit post) → reload featured + random
+        if (sessionManager != null && sessionManager.isLoggedIn()) {
+            loadPostSections();
+        }
     }
 
     @Override
@@ -48,19 +79,60 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem createPostItem = menu.findItem(R.id.action_create_post);
+        if (createPostItem != null) {
+            createPostItem.setVisible(isArtist);
+        }
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_all_artists) {
+        int id = item.getItemId();
+
+        if (id == R.id.action_home) {
+            // Đã ở Home rồi: refresh lại luôn
+            loadPostSections();
+            return true;
+        } else if (id == R.id.action_all_artists) {
+            Intent intent = new Intent(this, AllArtistsActivity.class);
+            startActivity(intent);
+            return true;
+        } else if (id == R.id.action_create_post) {
+            Intent intent = new Intent(this, PostEditActivity.class);
+            startActivity(intent);
+            return true;
+        } else if (item.getItemId() == R.id.action_all_artists) {
             Intent intent = new Intent(this, AllCommissionsActivity.class);
             intent.putExtra("IS_ARTIST_VIEW", false); // or true if user is artist
             startActivity(intent);
             return true;
         }
+
         return super.onOptionsItemSelected(item);
     }
 
     private void initViews() {
         tvUsername = findViewById(R.id.tvUsername);
         btnLogout = findViewById(R.id.btnLogout);
+        btnViewAllArt = findViewById(R.id.btnViewAllArt);
+
+        rvFeaturedPosts = findViewById(R.id.rvFeaturedPosts);
+        rvRandomPosts = findViewById(R.id.rvRandomPosts);
+    }
+
+    private void setupRecyclerViews() {
+        featuredAdapter = new PostAdapter(this::onPostClicked);
+        randomAdapter = new PostAdapter(this::onPostClicked);
+
+        rvFeaturedPosts.setLayoutManager(new LinearLayoutManager(this));
+        rvFeaturedPosts.setAdapter(featuredAdapter);
+        rvFeaturedPosts.setNestedScrollingEnabled(false);
+
+        rvRandomPosts.setLayoutManager(new LinearLayoutManager(this));
+        rvRandomPosts.setAdapter(randomAdapter);
+        rvRandomPosts.setNestedScrollingEnabled(false);
     }
 
     private void loadUserData() {
@@ -68,23 +140,63 @@ public class MainActivity extends AppCompatActivity {
         tvUsername.setText(username != null ? username : "User");
     }
 
+    private void loadUserRole() {
+        int userId = sessionManager.getUserId();
+        if (userId == -1) return;
+
+        new Thread(() -> {
+            UserRepository userRepository = new UserRepository(getApplicationContext());
+            User user = userRepository.getUserById(userId);
+            if (user != null) {
+                boolean artist = "artist".equalsIgnoreCase(user.getRole()) || user.isArtist();
+                runOnUiThread(() -> {
+                    isArtist = artist;
+                    invalidateOptionsMenu();
+                });
+            }
+        }).start();
+    }
+
     private void setupListeners() {
         btnLogout.setOnClickListener(v -> showLogoutDialog());
+
+        btnViewAllArt.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, AllPostsActivity.class);
+            startActivity(intent);
+        });
+    }
+
+    private void loadPostSections() {
+        // Top 5 post nhiều like nhất
+        postRepository.getTopLikedPostsAsync(5, this::updateFeaturedPosts);
+        // 5 post random
+        postRepository.getRandomPostsAsync(5, this::updateRandomPosts);
+    }
+
+    private void updateFeaturedPosts(List<Post> posts) {
+        featuredAdapter.setPosts(posts);
+    }
+
+    private void updateRandomPosts(List<Post> posts) {
+        randomAdapter.setPosts(posts);
+    }
+
+    private void onPostClicked(Post post) {
+        Intent intent = new Intent(this, PostDetailActivity.class);
+        intent.putExtra(PostDetailActivity.EXTRA_POST_ID, post.getId());
+        startActivity(intent);
     }
 
     private void showLogoutDialog() {
         new AlertDialog.Builder(this)
                 .setTitle("Logout")
-                .setMessage("Are you sure you want to logout?")
-                .setPositiveButton("Yes", (dialog, which) -> performLogout())
-                .setNegativeButton("No", null)
+                .setMessage("Do you really want to log out?")
+                .setPositiveButton("Yes", (dialog, which) -> {
+                    sessionManager.logout();
+                    navigateToLogin();
+                })
+                .setNegativeButton("Cancel", null)
                 .show();
-    }
-
-    private void performLogout() {
-        sessionManager.logout();
-        Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show();
-        navigateToLogin();
     }
 
     private void navigateToLogin() {

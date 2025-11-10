@@ -38,9 +38,6 @@ public class AuthViewModel extends AndroidViewModel {
         return verificationToken;
     }
 
-    /**
-     * Login with email or username
-     */
     public void login(String emailOrUsername, String password) {
         executorService.execute(() -> {
             try {
@@ -53,10 +50,8 @@ public class AuthViewModel extends AndroidViewModel {
                     return;
                 }
 
-                // Try to login with username first
                 User user = userRepository.authenticateUser(emailOrUsername, password);
 
-                // If failed, try with email
                 if (user == null) {
                     User userByEmail = userRepository.getUserByEmail(emailOrUsername);
                     if (userByEmail != null) {
@@ -68,7 +63,6 @@ public class AuthViewModel extends AndroidViewModel {
                     if (user.isBanned()) {
                         authResult.postValue(new AuthResult(false, "Your account has been banned", null));
                     } else if (!user.isEmailConfirmed()) {
-                        // EMAIL NOT CONFIRMED
                         currentUser.postValue(user);
                         authResult.postValue(new AuthResult(false, "EMAIL_NOT_CONFIRMED", user));
                     } else {
@@ -84,37 +78,27 @@ public class AuthViewModel extends AndroidViewModel {
         });
     }
 
-    /**
-     * Register new user
-     */
-    /**
-     * Register new user
-     */
     public void register(RegisterData data) {
         executorService.execute(() -> {
             try {
-                // Validation
                 String error = validateRegistration(data);
                 if (error != null) {
                     authResult.postValue(new AuthResult(false, error, null));
                     return;
                 }
 
-                // Check if username exists
                 User existingUser = userRepository.getUserByUsername(data.username);
                 if (existingUser != null) {
                     authResult.postValue(new AuthResult(false, "Username already exists", null));
                     return;
                 }
 
-                // Check if email exists
                 User existingEmail = userRepository.getUserByEmail(data.email);
                 if (existingEmail != null) {
                     authResult.postValue(new AuthResult(false, "Email already exists", null));
                     return;
                 }
 
-                // Create user with isEmailConfirmed = false
                 long userId = userRepository.createUser(
                         data.username,
                         data.email,
@@ -123,10 +107,8 @@ public class AuthViewModel extends AndroidViewModel {
                         data.dateOfBirth
                 );
 
-                // Update additional fields
                 User user = userRepository.getUserById((int) userId);
                 user.setArtist(data.isArtist);
-                user.setUserAvatar("defaultavatar.png");
                 user.setEmailConfirmed(false);
 
                 if (data.isArtist) {
@@ -139,10 +121,8 @@ public class AuthViewModel extends AndroidViewModel {
 
                 userRepository.updateUser(user);
 
-                // Generate verification token
                 String token = EmailService.generateVerificationToken((int) userId);
 
-                // Send verification email via SMTP
                 EmailService.sendVerificationEmail(
                         data.email,
                         data.username,
@@ -195,7 +175,6 @@ public class AuthViewModel extends AndroidViewModel {
         executorService.shutdown();
     }
 
-    // Result classes
     public static class AuthResult {
         public final boolean success;
         public final String message;
