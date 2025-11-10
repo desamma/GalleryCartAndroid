@@ -33,9 +33,12 @@ public class LoginActivity extends AppCompatActivity {
 
         sessionManager = new SessionManager(this);
 
-        // Check if already logged in
-        if (sessionManager.isLoggedIn()) {
-            navigateToMain();
+        if (sessionManager.isLoggedIn() && sessionManager.getUserRole() != null) {
+            if (sessionManager.getUserRole().equals("customer") || sessionManager.getUserRole().equals("artist")){
+                navigateToMain();
+            } else if (sessionManager.getUserRole().equals("admin")){
+                navigateToAdmin();
+            }
             return;
         }
 
@@ -61,21 +64,21 @@ public class LoginActivity extends AppCompatActivity {
             hideLoading();
 
             if (result.success) {
-                // Save session
                 if (result.user != null) {
-                    sessionManager.createLoginSession(result.user.getId(), result.user.getUsername());
+                    sessionManager.createLoginSession(result.user.getId(), result.user.getUsername(), result.user.getRole());
                 }
                 Toast.makeText(this, result.message, Toast.LENGTH_SHORT).show();
-                navigateToMain();
+                if (sessionManager.getUserRole().equals("admin")){
+                    navigateToAdmin();
+                } else {
+                    navigateToMain();
+                }
             } else {
-                // Check if email not confirmed
                 if ("EMAIL_NOT_CONFIRMED".equals(result.message)) {
-                    // Navigate to email verification screen
                     if (result.user != null) {
                         String token = com.example.gallerycart.service.EmailService
                                 .generateVerificationToken(result.user.getId());
 
-                        // Resend verification email (REMOVED context parameter)
                         EmailService.sendVerificationEmail(
                                 result.user.getEmail(),
                                 result.user.getUsername(),
@@ -110,14 +113,12 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void performLogin() {
-        // Clear errors
         tilEmailUsername.setError(null);
         tilPassword.setError(null);
 
         String emailOrUsername = etEmailUsername.getText().toString().trim();
         String password = etPassword.getText().toString();
 
-        // Basic validation
         if (emailOrUsername.isEmpty()) {
             tilEmailUsername.setError("Email or username is required");
             etEmailUsername.requestFocus();
@@ -136,6 +137,13 @@ public class LoginActivity extends AppCompatActivity {
 
     private void navigateToMain() {
         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
+    }
+
+    private void navigateToAdmin() {
+        Intent intent = new Intent(LoginActivity.this, AdminDashboardActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();

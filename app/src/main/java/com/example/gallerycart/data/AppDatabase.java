@@ -12,6 +12,8 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 import com.example.gallerycart.data.dao.*;
 import com.example.gallerycart.data.entity.*;
 
+import java.util.concurrent.Executors;
+
 @Database(entities = {
         User.class,
         Post.class,
@@ -24,7 +26,7 @@ import com.example.gallerycart.data.entity.*;
         MomoPayment.class,
         Commission.class,
         PayosPayment.class
-}, version = 5, exportSchema = true)
+}, version = 6, exportSchema = true)
 @TypeConverters({Converters.class})
 public abstract class AppDatabase extends RoomDatabase {
 
@@ -50,9 +52,8 @@ public abstract class AppDatabase extends RoomDatabase {
                                     context.getApplicationContext(),
                                     AppDatabase.class,
                                     "gallery_cart_database")
-                            .fallbackToDestructiveMigration()
                             .addCallback(roomCallback)
-                            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
+                            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
                             .build();
                 }
             }
@@ -144,6 +145,35 @@ public abstract class AppDatabase extends RoomDatabase {
     static final Migration MIGRATION_3_4 = new Migration(3, 4) {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
+            // Drop old commissions table
+            database.execSQL("DROP TABLE IF EXISTS commissions");
+
+            // Create new commissions table with proper structure
+            database.execSQL("CREATE TABLE IF NOT EXISTS `commissions` (" +
+                    "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                    "`artistId` INTEGER NOT NULL, " +
+                    "`clientId` INTEGER NOT NULL, " +
+                    "`description` TEXT, " +
+                    "`price` REAL NOT NULL, " +
+                    "`deadline` INTEGER, " +
+                    "`status` TEXT, " +
+                    "`workLink` TEXT, " +
+                    "`createdAt` INTEGER, " +
+                    "`updatedAt` INTEGER, " +
+                    "`acceptedAt` INTEGER, " +
+                    "`completedAt` INTEGER, " +
+                    "FOREIGN KEY(`artistId`) REFERENCES `user`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE, " +
+                    "FOREIGN KEY(`clientId`) REFERENCES `user`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE)");
+
+            // Create indices
+            database.execSQL("CREATE INDEX IF NOT EXISTS `index_commissions_artistId` ON `commissions` (`artistId`)");
+            database.execSQL("CREATE INDEX IF NOT EXISTS `index_commissions_clientId` ON `commissions` (`clientId`)");
+        }
+    };
+
+    static final Migration MIGRATION_4_5 = new Migration(4, 5) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
             database.execSQL("CREATE TABLE `payos_payment` (" +
                     "`id` TEXT PRIMARY KEY NOT NULL, " +
                     "`cartId` INTEGER NOT NULL, " +
@@ -184,7 +214,7 @@ public abstract class AppDatabase extends RoomDatabase {
         }
     };
 
-    static final Migration MIGRATION_4_5 = new Migration(4, 5) {
+    static final Migration MIGRATION_5_6= new Migration(5, 6) {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
             database.execSQL("DROP TABLE IF EXISTS payos_payment");

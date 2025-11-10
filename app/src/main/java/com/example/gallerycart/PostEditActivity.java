@@ -64,7 +64,6 @@ public class PostEditActivity extends AppCompatActivity {
             return;
         }
 
-        // Init Cloudinary uploader
         String cloudName = getString(R.string.cloudinary_cloud_name);
         String preset = getString(R.string.cloudinary_unsigned_preset);
         cloudinaryUploader = new CloudinaryUploader(cloudName, preset);
@@ -74,7 +73,6 @@ public class PostEditActivity extends AppCompatActivity {
         initViews();
 
         int userId = sessionManager.getUserId();
-        // Chỉ cho artist vào
         new Thread(() -> {
             UserRepository userRepository = new UserRepository(getApplicationContext());
             User user = userRepository.getUserById(userId);
