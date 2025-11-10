@@ -37,7 +37,6 @@ public class PostRepository {
         void onResult(Post post);
     }
 
-    // ===== CRUD cơ bản (gọi từ background thread) =====
 
     public long insertPost(Post post) {
         return postDao.insert(post);
@@ -95,19 +94,16 @@ public class PostRepository {
         return postDao.insert(post);
     }
 
-    // ===== Post with details =====
 
     public PostWithDetails getPostWithDetails(int postId) {
         return postDao.getPostWithDetails(postId);
     }
 
-    // ===== Like =====
 
     public void likePost(int postId) {
         executorService.execute(() -> postDao.incrementLikeCount(postId));
     }
 
-    // ===== Async cho Home & View all =====
 
     public void getTopLikedPostsAsync(int limit, PostsCallback callback) {
         executorService.execute(() -> {

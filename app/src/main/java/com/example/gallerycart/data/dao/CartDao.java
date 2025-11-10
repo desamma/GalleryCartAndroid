@@ -5,6 +5,7 @@ import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Update;
 import com.example.gallerycart.data.entity.Cart;
+import com.example.gallerycart.data.model.CartItemWithPost;
 import com.example.gallerycart.data.model.CartWithItems;
 import java.util.List;
 
@@ -35,6 +36,12 @@ public interface CartDao {
             "FROM cart c WHERE c.id = :cartId")
     CartWithItems getCartWithItemsById(int cartId);
 
+    @Query("SELECT ci.*, p.title, p.imagePath, p.price " +
+            "FROM cart_item ci " +
+            "INNER JOIN post p ON ci.postId = p.id " +
+            "WHERE ci.cartId = :cartId")
+    List<CartItemWithPost> getCartItemsWithPosts(int cartId);
+
     @Query("UPDATE cart SET totalPrice = :totalPrice WHERE id = :cartId")
     void updateTotalPrice(int cartId, double totalPrice);
 
@@ -52,4 +59,14 @@ public interface CartDao {
 
     @Query("DELETE FROM cart WHERE id = :cartId")
     void deleteCart(int cartId);
+
+    @Query("SELECT SUM(totalPrice) FROM cart WHERE purchaseDate IS NOT NULL AND purchaseDate BETWEEN :from AND :to")
+    Double sumRevenueBetween(long from, long to);
+
+    @Query("SELECT ci.*, p.title AS title, p.imagePath AS imagePath, p.price AS price " +
+            "FROM cart_item ci " +
+            "INNER JOIN cart c ON ci.cartId = c.id " +
+            "INNER JOIN post p ON ci.postId = p.id " +
+            "WHERE c.purchaseDate BETWEEN :from AND :to")
+    List<CartItemWithPost> getSoldItemsBetween(long from, long to);
 }
