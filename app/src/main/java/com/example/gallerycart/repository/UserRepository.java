@@ -8,18 +8,14 @@ import com.example.gallerycart.data.entity.User;
 import com.example.gallerycart.util.PasswordUtils;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class UserRepository {
 
     private final UserDao userDao;
-    private final ExecutorService executorService;
 
     public UserRepository(Context context) {
         AppDatabase database = AppDatabase.getInstance(context);
         userDao = database.userDao();
-        executorService = Executors.newSingleThreadExecutor();
     }
     public LiveData<List<User>> getAllUsers() {
         return userDao.getAllUsers();
@@ -83,20 +79,18 @@ public class UserRepository {
     }
 
     public void updateUser(User user) {
-        executorService.execute(() -> userDao.update(user));
+        userDao.update(user);
     }
 
     public void setBanStatus(int userId, boolean isBanned) {
-        executorService.execute(() -> {
-            User user = userDao.getUserById(userId);
-            if (user != null) {
-                user.setBanned(isBanned);
-                userDao.update(user);
-            }
-        });
+        User user = userDao.getUserById(userId);
+        if (user != null) {
+            user.setBanned(isBanned);
+            userDao.update(user);
+        }
     }
 
     public void setEmailConfirmed(int userId, boolean confirmed) {
-        executorService.execute(() -> userDao.updateEmailConfirmation(userId, confirmed));
+        userDao.updateEmailConfirmation(userId, confirmed);
     }
 }

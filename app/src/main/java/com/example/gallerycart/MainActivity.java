@@ -125,6 +125,14 @@ public class MainActivity extends AppCompatActivity {
             intent.putExtra("IS_ARTIST_VIEW", true);
             startActivity(intent);
             return true;
+        } else if (id == R.id.action_cart) {
+            Intent intent = new Intent(this, CartActivity.class);
+            startActivity(intent);
+            return true;
+        } else if (id == R.id.action_user_profile) {
+            Intent intent = new Intent(this, UserProfileActivity.class);
+            startActivity(intent);
+            return true;
         }
 
 
