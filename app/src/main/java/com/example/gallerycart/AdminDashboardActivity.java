@@ -93,10 +93,10 @@ public class AdminDashboardActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        /*btnManagePosts.setOnClickListener(v -> {
+        btnManagePosts.setOnClickListener(v -> {
             Intent intent = new Intent(this, AdminPostActivity.class);
             startActivity(intent);
-        });*/
+        });
 
         btnLogout.setOnClickListener(v -> showLogoutDialog());
 
